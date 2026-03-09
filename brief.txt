@@ -1,0 +1,790 @@
+﻿DASH DELIVERY
+FULL-STACK WEBSITE DEVELOPMENT BRIEF
+─────────────────────────────────
+Prepared for:
+ANTIGRAVITY STUDIO
+UK & Europe's Premier Courier Technology Platform
+Prepared by: Dash Delivery Ltd.     |     Version: 1.0     |     Date: 2024
+FRONTEND
+HTML → React/Next.js conversion with light/dark mode, animations & full responsive design
+BACKEND
+Node.js + Express REST API, PostgreSQL database, JWT auth, PDF generation, email system
+ADMIN CMS
+Full-featured admin panel: manage all content, bookings, invoices, quotes, users & analytics
+01. 
+PROJECT OVERVIEW
+Dash Delivery is an established UK & European courier company requiring a world-class digital platform that converts visitors into customers, enables self-serve bookings, generates professional PDF documentation, and gives staff full control over every aspect of the website and business operations through a comprehensive admin panel.
+This brief covers the complete technical specification for Antigravity Studio. The existing HTML prototype (dash-delivery-v3.html) has been provided as the visual design reference and must be faithfully converted into a production-grade, full-stack web application.
+1.1 Project Goals
+Convert the approved HTML/CSS prototype into a pixel-perfect, production Next.js application
+Build a comprehensive Node.js + PostgreSQL backend with full REST API
+Implement a fully featured Admin Panel (CMS) where every piece of content is editable
+Deliver PDF Invoice & Quote generation with Dash branding
+Implement Pickup Booking, Quote Request, and Contact systems
+Integrate email notification system for all transactional events
+Achieve 95+ Lighthouse scores across Performance, SEO, and Accessibility
+Deploy on scalable cloud infrastructure with CI/CD pipeline
+1.2 Design Reference
+The file dash-delivery-v3.html located in the provided project folder is the APPROVED design reference. All colours, typography, spacing, animations, and component designs from this file must be faithfully reproduced in the final application. Do not deviate from the approved design without written sign-off.
+Key design tokens from the reference file:
+Design Token
+Value / Specification
+Primary Orange
+#FF4500 → #FFC107 (gradient)
+Background (Light)
+#FAFAF8 warm white
+Background (Dark)
+#080808 deep black
+Display Font
+Bebas Neue (headings)
+UI Font
+Syne (labels, navigation, buttons)
+Body Font
+DM Sans Light (descriptions, paragraphs)
+Theme
+Light mode default, dark mode via toggle (persisted in localStorage)
+Animations
+Particle canvas, scroll reveal, custom cursor, marquee, floating badges
+02. 
+RECOMMENDED TECHNOLOGY STACK
+2.1 Frontend
+Technology
+Purpose / Justification
+Next.js 14 (App Router)
+SSR + SSG for performance & SEO, file-based routing, API routes
+React 18
+Component architecture, hooks, concurrent rendering
+TypeScript
+Type safety across entire frontend codebase
+Tailwind CSS
+Utility-first styling; custom config to match design tokens exactly
+Framer Motion
+Production-grade animations: scroll reveal, page transitions, micro-interactions
+React Hook Form + Zod
+Form management with client-side validation schemas
+Zustand
+Lightweight global state (theme, cart, user session)
+SWR / React Query
+Data fetching, caching, background revalidation
+Google Fonts (self-hosted)
+Bebas Neue, Syne, DM Sans — self-hosted for GDPR & performance
+2.2 Backend
+Technology
+Purpose / Justification
+Node.js 20 LTS + Express.js
+REST API server, middleware, routing
+PostgreSQL 16
+Primary relational database
+Prisma ORM
+Type-safe database queries, migrations, schema management
+JWT + Refresh Tokens
+Stateless authentication for admin panel
+Bcrypt
+Password hashing for admin user accounts
+PDFKit / Puppeteer
+Server-side PDF generation for invoices and quotes
+Nodemailer + SendGrid
+Transactional email delivery
+Multer + AWS S3
+File uploads (images, documents) with CDN delivery
+Redis
+Session caching, rate limiting, job queuing
+BullMQ
+Background job processing (email queues, PDF generation)
+Stripe
+Payment processing for online bookings
+Zod
+Server-side request validation schemas
+2.3 Infrastructure & DevOps
+Service
+Specification
+Hosting
+Vercel (frontend) + Railway or Render (backend API)
+Database
+Supabase PostgreSQL or Railway PostgreSQL with daily backups
+CDN
+Cloudflare — caching, DDoS protection, edge delivery
+Object Storage
+AWS S3 or Cloudflare R2 for assets & generated PDFs
+Email
+SendGrid with custom domain authentication (SPF, DKIM, DMARC)
+Monitoring
+Sentry (errors), Datadog or Vercel Analytics (performance)
+CI/CD
+GitHub Actions — lint → test → build → deploy pipeline
+SSL
+Let's Encrypt via Cloudflare — auto-renewing
+Environments
+Development / Staging / Production with environment-specific secrets
+03. 
+DATABASE SCHEMA
+All tables should use UUID primary keys, created_at / updated_at timestamps (auto-managed via Prisma), and appropriate indexes on frequently queried fields. Soft-delete (deleted_at) should be implemented on critical tables.
+3.1 Core Tables
+Table
+Key Columns
+Purpose
+users
+id, name, email, password_hash, role (ADMIN|STAFF|CUSTOMER), is_active, last_login
+Admin and customer accounts
+bookings
+id, tracking_number, sender_id, pickup_address, delivery_address, service_type, weight, dimensions, status, estimated_price, paid_at, notes
+Pickup booking records
+quotes
+id, company_name, contact_name, email, phone, from_country, to_country, service_type, weight, cargo_description, message, status (NEW|REVIEWED|SENT|ACCEPTED), price_offered
+Quote request management
+invoices
+id, invoice_number, booking_id or quote_id, customer_name, customer_address, line_items (JSONB), subtotal, vat_amount, total, currency, status (DRAFT|SENT|PAID|OVERDUE), due_date, paid_at, pdf_url
+Invoice records
+tracking_events
+id, booking_id, status, location, description, occurred_at
+Parcel tracking timeline
+contacts
+id, name, email, phone, subject, message, status (NEW|READ|REPLIED), replied_at
+Contact form submissions
+services
+id, slug, name, description, icon, price_from, duration, is_active, sort_order
+Service definitions
+testimonials
+id, author_name, author_role, company, avatar_initials, rating, quote, is_published, sort_order
+Customer testimonials
+content_blocks
+id, key (unique), title, body, cta_text, cta_url, is_active
+Editable content (hero, CTA, about text)
+site_settings
+id, key (unique), value, type (text|image|color|boolean|json)
+Global site config (contact info, social links, etc.)
+price_rules
+id, from_country, to_country, service_type, base_price, per_kg_price, fuel_levy_pct, is_active
+Pricing matrix for calculator
+depot_locations
+id, city, country, address, lat, lng, is_active
+Coverage map pins
+news_articles
+id, title, slug, excerpt, body, cover_image_url, author_id, published_at, is_published
+Blog / news (optional)
+email_templates
+id, key, subject, html_body, text_body, variables (JSONB)
+Editable email templates
+api_logs
+id, endpoint, method, ip, user_agent, response_status, duration_ms, created_at
+API request logging
+04. 
+FRONTEND PAGES & FEATURES
+Every page must use the design language from dash-delivery-v3.html: Bebas Neue headings, Syne labels, DM Sans body, orange gradient accents, light/dark theme toggle, custom cursor, particle canvas, and scroll-reveal animations.
+4.1 Homepage (/)
+Hero Section
+ — Full-viewport hero with animated particle canvas, diagonal cream/dark split panel, custom dual-ring cursor, animated hero text stagger (Framer Motion), live delivery counter that ticks up every 4 seconds (fetched from /api/stats), and four hero stat boxes
+Live Map Panel
+ — Floating card with animated SVG route lines (drawn on load), pulsing city dots (London hub, Paris, Amsterdam, Berlin, Madrid, Rome, Warsaw), 4 live delivery status cards with animated progress bars — data seeded from admin or mocked
+Scrolling Marquee
+ — Infinite ticker strip listing all services — pausable on hover, editable from admin
+Services Bento Grid
+ — Asymmetric 12-column bento grid (as per HTML reference) — all cards editable from admin panel including icon, title, description, pill label and price
+Real-Time Tracking Widget
+ — Working parcel tracker — enter tracking ID → API call → display animated timeline. Must show 5 stages with done/active/pending states and GPS location description
+Price Calculator
+ — Fully functional calculator: from/to country dropdowns, service type, weight slider → live price calculation using rates from database. "Book This Delivery" button flows into booking form
+How It Works
+ — 4-step horizontal flow with numbered circles and connecting line — content editable from admin
+Testimonials Grid
+ — 3-column testimonials fetched from database — admin can add, edit, publish/unpublish
+App Promo Section
+ — 3 overlapping phone card mockups, App Store + Google Play badges — links editable from admin
+CTA Banner
+ — Full-width orange gradient banner — headline, subtext, and button labels editable from admin
+4.2 Services Page (/services)
+Full-width hero with service overview and "Get a Quote" CTA
+Expanded service cards (all 6 services) — each service has its own dedicated card with full description, pricing, delivery timescales, and features list
+Service comparison table: Same-Day vs Express vs Standard vs European vs Freight
+FAQ accordion for each service type — fully editable from admin
+Inline "Get a Quote" form embedded in the page
+4.3 Track a Parcel (/track)
+Large hero with the tracking input field and QR code scan button
+On tracking number submission → API call → animated result card with full 5-stage timeline
+Map showing current location of parcel (Google Maps or Mapbox embed)
+Driver details card when status is "Out for Delivery" (driver name, ETA, stops remaining)
+SMS/Email re-notification button ("Send me an update")
+Share tracking link feature — copies branded URL to clipboard
+4.4 Quote Request (/quote)
+Multi-step form (3 steps) with smooth animated transitions between steps:
+Step 1: Shipment details — from/to country, service type, weight, dimensions, cargo description
+Step 2: Contact information — name, company, email, phone number, preferred contact time
+Step 3: Review & Submit — summary card of all entered details + confirmation checkbox
+On submission: record saved to database, confirmation email to customer, notification email to Dash team, quote appears in admin panel as status NEW
+Admin can then set a price and send a formal PDF quote directly from the admin panel
+4.5 Book a Pickup (/book)
+Step 1: Service selection — visual service cards, user clicks desired option
+Step 2: Shipment details — sender address (with postcode lookup/autocomplete), recipient address, package weight & dimensions, special instructions
+Step 3: Schedule — date picker (no Sundays, no bank holidays), time window selection (AM / PM / Specific)
+Step 4: Review & Payment — order summary, price breakdown, Stripe payment integration
+Step 5: Confirmation — animated success screen, tracking number generated and displayed, confirmation email sent
+Guest checkout allowed (no account required) — email used to look up bookings
+4.6 Coverage Map (/coverage)
+Interactive Mapbox or Leaflet map with depot location pins
+Sidebar list of all covered countries and major cities
+Click a pin → popup with depot address, opening hours, phone number
+Search: "Can you deliver to [postcode]?" — checks postcode database
+Coverage stats displayed prominently: 28 countries, 340+ depots, 2,800+ drivers
+4.7 Business Accounts (/business)
+Landing page for B2B prospects — features list, volume pricing table, API integration pitch
+"Open a Business Account" form: company details, VAT number, monthly volume estimate, preferred services
+API documentation preview / link to full docs
+Logos of platforms supported: Shopify, WooCommerce, Magento, BigCommerce, eBay
+Case study cards (2–3) editable from admin
+4.8 Contact Page (/contact)
+Contact form: name, email, phone, subject dropdown, message — saves to database
+Department selector (Sales / Support / Claims / Billing) — routes to correct email
+Office address, phone (with hours), live chat toggle
+Embedded Google Maps with depot pin
+Emergency contact card (for urgent deliveries out of hours)
+4.9 About Page (/about)
+Company story, founding year, mission statement — all editable from admin
+Team section (up to 8 team member cards with photo, name, role) — fully managed from admin
+Timeline of company milestones
+Sustainability & carbon neutral pledge section
+Press logos / media mentions
+4.10 Pricing Page (/pricing)
+Full pricing table with all service tiers
+Weight/dimension surcharge explanation
+Fuel levy notice (editable percentage)
+Business discount tiers table
+The interactive price calculator (same as homepage widget)
+FAQs on pricing — fully editable from admin
+05. 
+ADMIN PANEL — FULL SPECIFICATION
+The admin panel is accessible at /admin — protected by JWT authentication. It must be a separate React SPA (within the same Next.js project) with its own layout, sidebar navigation, and role-based access controls. All data shown in the admin must reflect the live database in real time.
+IMPORTANT: Every section of the public website that contains text, images, pricing, or content must have a corresponding editable entry in the admin panel. There must be zero hard-coded content on the frontend that cannot be changed without a developer.
+5.1 Admin Login & Authentication
+Login page at /admin/login — email + password, JWT issued on success
+Refresh token rotation — 15-minute access token, 7-day refresh token stored in httpOnly cookie
+Role-based access: SUPER_ADMIN (all access), ADMIN (most access), STAFF (view + limited edit)
+"Forgot Password" flow — sends reset link via email, 1-hour expiry token
+Login audit log — records IP, device, timestamp for every successful and failed login
+Forced logout after 8 hours of inactivity
+2FA (Two-Factor Authentication) via TOTP authenticator app — optional but available
+5.2 Dashboard Overview
+Stats Row
+ — Today's bookings count, total revenue this month, pending quotes, new contact form submissions — all live
+Booking Status Doughnut Chart
+ — Visual breakdown: Pending / In Transit / Delivered / Cancelled
+Revenue Line Chart
+ — 7-day, 30-day, 90-day revenue trends (switchable)
+Recent Bookings Table
+ — Last 10 bookings with quick-action buttons (View, Invoice, Update Status)
+Recent Quotes Table
+ — Last 10 quote requests with status badges and "Send Quote" button
+Unread Messages Counter
+ — Alerts for unread contact form messages
+Quick Actions Bar
+ — "New Booking", "New Invoice", "Send Quote" shortcut buttons
+5.3 Bookings Management
+Full data table: booking ID, tracking number, sender, recipient, service, status, date, price
+Column filters: by status, by service type, by date range, by country
+Search: by tracking number, sender name, recipient name, postcode
+Export to CSV / Excel
+Single booking view: full details, address map, tracking timeline editor, customer contact
+Update Tracking Status — dropdown: Booked / Collected / In Sorting Hub / Customs Cleared / Out for Delivery / Delivered / Failed / Returned
+Add tracking event: status, location, timestamp, description (adds to public tracking timeline)
+Generate PDF Invoice from booking — one click, downloads or sends to customer by email
+Add notes / internal comments visible only to staff
+Cancel booking with reason — triggers customer notification email
+Refund processing integration with Stripe (partial or full)
+5.4 Quote Request Management
+Table of all quote requests with columns: date, company, route, service, weight, status
+Filter by status: New / Reviewed / Quoted / Accepted / Declined
+Single quote view: full shipment details entered by customer
+Price Calculator panel alongside quote details — admin enters price, margin automatically calculated
+"Send Formal Quote" button — generates a branded PDF quote, emails to customer, updates status to SENT
+Quote PDF includes: Dash logo, quote number, validity period (editable), line items, VAT, total, T&Cs excerpt, and "Accept Quote" call-to-action URL
+Customer acceptance tracking — when customer clicks "Accept Quote" in email, status updates to ACCEPTED in admin
+Convert accepted quote to booking in one click
+5.5 Invoice Management
+Invoice list: number, customer, amount, status (Draft / Sent / Paid / Overdue), due date
+Create new invoice from scratch with line-item builder:
+Add/remove/reorder line items (description, quantity, unit price)
+Automatic VAT calculation (configurable rate, default 20%)
+Discount field (fixed amount or percentage)
+Currency selector (GBP / EUR / USD)
+Due date picker — with overdue warning indicator
+Preview mode: renders the PDF invoice exactly as the customer will see it, inside the browser
+"Download PDF" — saves to S3 and provides download link
+"Email to Customer" — sends branded email with PDF attached
+Mark as Paid manually — records payment date and method
+Stripe payment link — generates a hosted Stripe checkout link embedded in invoice email
+Automatic overdue detection — jobs run nightly; overdue invoices flagged, optional auto-reminder email sent
+Invoice number auto-increments: format INV-2024-0001
+5.6 Content Management (CMS)
+◆ 
+Site Settings
+Company name, tagline, registered address, VAT number
+Phone number, email address, emergency contact
+Social media links (X/Twitter, LinkedIn, Facebook, YouTube, Instagram)
+Google Analytics ID, Meta Pixel ID, Cookie banner text
+Favicon and logo upload (both light & dark variants)
+Footer legal text, copyright notice
+System status message (shown/hidden, displayed at top of site)
+◆ 
+Homepage Content
+Hero eyebrow text, headline (3 lines separately editable), body text
+All 3 CTA button labels and URLs
+Hero stats (4 numbers + labels — updated here, shown live)
+Marquee strip text items — add/remove/reorder
+CTA Banner — headline, subtext, button labels and URLs
+App section — heading, body text, App Store / Play Store URLs
+◆ 
+Services
+Full CRUD for all service cards: icon emoji, number label, title, description, pill label, price/duration
+Set visibility (show/hide) and sort order per service
+Service page FAQs — add/edit/delete accordion items per service
+◆ 
+Testimonials
+Add / edit / delete testimonials: author, role, company, rating, quote text
+Upload author avatar or use initials — auto-generates gradient avatar if no photo
+Publish / Unpublish toggle
+Drag-and-drop reorder
+◆ 
+Coverage Map
+Add / edit / delete depot locations: city, country, address, lat/lng, opening hours, phone
+Toggle visibility per depot
+◆ 
+Pricing / Price Rules
+Edit the pricing matrix: from country → to country → service type → base price + per-kg rate
+Fuel levy percentage (global setting)
+Insurance inclusion threshold
+Business discount tiers: enter volume threshold → discount percentage
+◆ 
+Email Templates
+Edit all system email templates in a rich-text editor (TipTap or Quill)
+Available templates: Booking Confirmation, Delivery Update, Quote Received, Quote PDF, Invoice, Payment Received, Password Reset, Contact Auto-Reply
+Variable tokens displayed beside editor: {{customer_name}}, {{tracking_number}}, {{invoice_total}}, etc.
+Send test email to self before saving
+◆ 
+Pages & SEO
+Edit meta title, meta description, and Open Graph image per page
+Sitemap auto-generation on content change
+Robots.txt editor
+5.7 Users & Staff Management
+List all admin/staff accounts with role, last login, status
+Create new user: name, email, role, temporary password (forced change on first login)
+Deactivate accounts (soft delete — login prevented, data retained)
+Role assignment: SUPER_ADMIN / ADMIN / STAFF
+Activity log per user: what they changed, when
+5.8 Analytics & Reports
+Date-range picker for all reports
+Revenue report: total by day/week/month, by service type, by country
+Bookings report: volume, average value, conversion rate, cancellations
+Top customers: ranked by total spend
+Popular routes: most frequently booked from/to combinations
+Quote conversion rate: quotes sent vs accepted vs declined
+Export all reports to PDF or CSV
+06. 
+PDF GENERATION SPECIFICATION
+All PDFs must be generated server-side using Puppeteer (rendering HTML templates to PDF) or PDFKit. They must be stored on AWS S3 and returned as download links or email attachments. Generated PDFs must match Dash Delivery branding exactly.
+6.1 PDF Invoice — Full Specification
+INVOICE LAYOUT (A4 Portrait)
+Header block: Dash Delivery logo (top-left), "INVOICE" title (top-right) in Bebas Neue, Invoice number, Date issued, Due date. Customer block: Bill To — company name, contact name, address, VAT number (if applicable). From block: Dash Delivery Ltd, registered address, contact email, VAT registration number. Line Items Table: columns — Description, Qty, Unit Price, VAT%, Amount. Footer: Subtotal / VAT amount / Total in large orange text. Payment instructions. T&Cs excerpt. "Paid" watermark stamp if status is Paid.
+Invoice number format: INV-YYYY-NNNN (e.g. INV-2024-0142)
+VAT itemised per line where rates differ
+Currency symbol from invoice currency setting
+QR code in footer linking to online payment page (if unpaid)
+Page number in footer: "Page 1 of 1"
+Dash brand colours used in table headers (orange), accents, and logo
+Registered company details in footer: Company number, VAT number, registered address
+6.2 PDF Quote — Full Specification
+QUOTE LAYOUT (A4 Portrait)
+Header: Logo + "FORMAL QUOTATION" title. Quote number (QUO-YYYY-NNNN), Date, Valid Until (default 14 days). Addressed to: customer / company. Shipment Summary: From, To, Service Type, Weight, Estimated Dimensions, Cargo Type. Pricing Table: same line-item format as invoice with base rate, weight surcharge, fuel levy, insurance, VAT, Total. T&Cs summary. "Accept This Quote" CTA box with unique acceptance URL. Contact details for queries. Dash signature block.
+Quote acceptance URL: /quotes/accept/[unique-token] — one click updates status to ACCEPTED
+"Valid for 14 days" notice in orange highlight box
+Estimated delivery time included
+6.3 PDF Booking Confirmation
+BOOKING CONFIRMATION LAYOUT
+Large checkmark icon + "Booking Confirmed" heading in orange. Booking reference prominently displayed. Tracking number with QR code. Shipment summary (from, to, service, ETA). Driver collection window. How to track instructions. Contact details if issues arise. Dash branding throughout.
+07. 
+EMAIL NOTIFICATION SYSTEM
+All transactional emails must be sent via SendGrid using a custom authenticated domain (e.g. noreply@dashdelivery.co.uk). Every email must use a branded HTML template with Dash colours and be viewable in all major email clients.
+7.1 Triggered Email Events
+Trigger Event
+Emails Sent
+Pickup booking submitted
+1. Customer: booking confirmation + PDF
+2. Staff: new booking notification
+Quote request submitted
+1. Customer: auto-reply (quote received, will respond in 24h)
+2. Staff: new quote request alert
+Quote PDF sent by admin
+Customer: formal PDF quote with acceptance link
+Quote accepted by customer
+Staff: quote acceptance notification
+Tracking status updated
+Customer: status update with current location
+Parcel out for delivery
+Customer: "Your parcel is on its way!" with ETA
+Parcel delivered
+Customer: delivery confirmation with proof details
+Invoice sent
+Customer: invoice email with PDF attachment + payment link
+Payment received
+Customer: payment receipt
+Staff: payment notification
+Invoice overdue (7 days)
+Customer: polite payment reminder
+Contact form submitted
+1. Customer: auto-reply confirmation
+2. Staff: new message notification
+Admin password reset
+Admin: reset link email (1-hour expiry)
+New admin user created
+New user: welcome email with temporary password
+7.2 Email Template Requirements
+All templates must render correctly in Gmail, Outlook (2016+), Apple Mail, Yahoo Mail
+Responsive design — must be readable on mobile (320px width minimum)
+Plain-text fallback for every HTML email
+Unsubscribe link in footer for marketing emails (not required for transactional)
+Logo served from CDN URL (not embedded as base64 — Outlook strips these)
+All templates editable from the admin panel's Email Templates section
+Test email send capability from admin before publishing a template
+08. 
+KEY FEATURES — DETAILED SPECIFICATIONS
+8.1 Parcel Tracking System
+Public tracking at /track — enter tracking number, see full timeline
+Tracking number format: DD-YYYY-NNNNNN (e.g. DD-2024-887741)
+Tracking timeline states: Booked → Collected → In Sorting Hub → Customs Cleared → Out for Delivery → Delivered (or Failed Delivery / Returned)
+Each event stores: status enum, location string, description, timestamp, added_by (staff member)
+"Out for Delivery" state shows: driver name, estimated stops, ETA (manually entered by staff)
+Share tracking link: /track?id=DD-2024-887741 — pre-fills the input
+"Notify me" — customer enters email, receives SMS/email on next status change
+Admin can bulk-update tracking status from the bookings list (e.g. mark all Manchester bookings as "In Sorting Hub")
+8.2 Price Calculator
+From country / To country dropdowns — populated from database (all 28 countries)
+Service type: Standard / Express / Same-Day — prices fetched from price_rules table
+Weight slider: 0.5kg to 30kg in 0.5kg increments
+Real-time calculation: base price + (weight × per_kg_rate) + fuel levy %
+Price breakdown displayed: Base Rate, Weight Surcharge, Fuel Levy, Insurance (Included), VAT (on final total)
+"Book This Delivery" button pre-fills the booking form with the selected options and calculated price
+All rates fully editable from admin → Pricing section
+8.3 Stripe Payment Integration
+Stripe Elements embedded in the booking flow (no redirect — inline card entry)
+Supported payment methods: Credit/Debit Card, Apple Pay, Google Pay
+3D Secure authentication handled automatically
+Webhook receiver: /api/webhooks/stripe — handles payment_intent.succeeded, payment_intent.payment_failed, refund events
+On successful payment: booking status → PAID, tracking number generated, confirmation email sent
+Stripe Customer objects linked to user accounts for repeat bookings
+Stripe Dashboard link in admin for financial reconciliation
+8.4 Address Autocomplete
+UK postcodes: integrate with Postcodes.io (free) or GetAddress.io for UK postcode lookup
+International addresses: Google Places Autocomplete API or Mapbox Geocoding
+Autofill: postcode entered → address fields populated automatically
+Validation: postcode format validated client-side before API call
+8.5 Light / Dark Mode
+Default: Light mode (warm white #FAFAF8 as per design reference)
+Toggle: moon/sun button, bottom-right corner (exactly as in HTML reference)
+Persistence: theme stored in localStorage — remembered on return visits
+System preference detection: on first visit, checks prefers-color-scheme media query
+CSS transition: all theme-related properties transition at 0.4s ease — no flash
+SSR-safe: Next.js theme handling must not cause hydration mismatch (use suppressHydrationWarning on html element)
+8.6 Custom Cursor
+Two-element cursor: small solid orange dot (8px) + larger ring with lag-follow physics (as in HTML reference)
+Cursor scales on hover over interactive elements (buttons, cards, links)
+Implemented in a global React context + useEffect with requestAnimationFrame
+Disabled on touch devices (pointer: coarse media query)
+Ring colour transitions to brighter orange on hover state
+8.7 SEO & Performance
+Next.js generateMetadata() for dynamic meta tags per page
+Structured data (JSON-LD): LocalBusiness, Service, FAQPage schemas
+Open Graph + Twitter card meta for all pages
+Sitemap.xml auto-generated at /sitemap.xml
+Robots.txt at /robots.txt
+Image optimisation: all images through Next.js <Image> with WebP conversion and lazy loading
+Core Web Vitals targets: LCP < 2.5s, FID < 100ms, CLS < 0.1
+Self-hosted fonts to eliminate render-blocking Google Fonts requests
+Critical CSS inlined for above-the-fold content
+8.8 Accessibility
+WCAG 2.1 AA compliance across all pages
+Skip navigation link visible on keyboard focus
+All images have descriptive alt attributes
+Custom cursor falls back gracefully — standard system cursor on touch/keyboard-only
+All form fields have associated labels
+Focus indicators visible and high-contrast on all interactive elements
+Colour contrast ratios: minimum 4.5:1 for body text, 3:1 for large text
+ARIA roles on custom interactive components (accordion, modal, tabs)
+09. 
+REST API ENDPOINT SPECIFICATION
+All API endpoints use the prefix /api/v1/. All responses follow the format: { success: boolean, data: any, message: string, errors?: array }. Authentication uses Bearer token (JWT) in the Authorization header for protected routes.
+9.1 Public Endpoints (No Auth Required)
+Method + Endpoint
+Description
+Response
+GET /api/v1/track/:trackingNumber
+Get tracking timeline for a parcel
+Booking + events array
+POST /api/v1/quotes
+Submit a new quote request
+Created quote ID
+POST /api/v1/bookings
+Create a new pickup booking
+Booking + tracking number
+POST /api/v1/contacts
+Submit a contact form message
+Confirmation
+GET /api/v1/services
+Get all active services
+Services array
+GET /api/v1/testimonials
+Get published testimonials
+Testimonials array
+POST /api/v1/calculate-price
+Calculate price for given params
+Price breakdown object
+GET /api/v1/depots
+Get all active depot locations
+Depots with lat/lng
+GET /api/v1/stats
+Get public stats (parcels, countries, etc.)
+Stats object
+GET /api/v1/content/:key
+Get a content block by key
+Content block
+POST /api/v1/quotes/:token/accept
+Accept a quote via token link
+Updated quote status
+POST /api/v1/track/notify
+Register email for tracking updates
+Confirmation
+POST /api/v1/webhooks/stripe
+Stripe webhook receiver
+200 OK
+9.2 Admin Endpoints (JWT Required)
+Method + Endpoint
+Description
+Notes
+POST /api/v1/admin/auth/login
+Admin login → JWT
+Returns access + refresh tokens
+POST /api/v1/admin/auth/refresh
+Refresh access token
+Uses httpOnly refresh token
+POST /api/v1/admin/auth/logout
+Invalidate tokens
+Clears refresh token
+GET /api/v1/admin/dashboard
+Dashboard stats & charts data
+Protected — ADMIN+
+GET/POST/PUT/DELETE /api/v1/admin/bookings
+Full CRUD for bookings
+Status updates, tracking events
+GET/POST/PUT/DELETE /api/v1/admin/quotes
+Full CRUD for quotes
+Send PDF quote endpoint
+GET/POST/PUT/DELETE /api/v1/admin/invoices
+Full CRUD for invoices
+Generate PDF, send email
+POST /api/v1/admin/invoices/:id/send
+Email invoice to customer
+Attaches PDF
+POST /api/v1/admin/invoices/:id/pdf
+Generate / download PDF
+Returns S3 URL
+GET/POST/PUT/DELETE /api/v1/admin/services
+Manage service cards
+Reorder via sort_order
+GET/POST/PUT/DELETE /api/v1/admin/testimonials
+Manage testimonials
+Publish toggle
+GET/PUT /api/v1/admin/content
+Manage content blocks
+Key-value CMS
+GET/PUT /api/v1/admin/settings
+Manage site settings
+Global config
+GET/PUT /api/v1/admin/pricing
+Manage price rules matrix
+From/to/service/rates
+GET/POST/PUT/DELETE /api/v1/admin/depots
+Manage depot locations
+Map pins management
+GET/POST/PUT/DELETE /api/v1/admin/users
+Manage admin users
+Role-based
+GET/PUT /api/v1/admin/email-templates
+Manage email templates
+Preview + test send
+GET /api/v1/admin/contacts
+View contact submissions
+Mark read/replied
+GET /api/v1/admin/reports
+Revenue & booking reports
+Date range + export
+GET /api/v1/admin/audit-log
+View system audit log
+Who changed what
+10. 
+PROJECT FOLDER STRUCTURE
+The following structure should be used. The provided dash-delivery-v3.html reference file should be placed in /design-reference/ at the project root for the development team to reference throughout build.
+IMPORTANT — DESIGN REFERENCE FILE
+Place dash-delivery-v3.html inside /design-reference/dash-delivery-v3.html at the root of the repository. Reference it constantly during development. Every component built must match this file visually.
+dash-delivery/
+├── design-reference/
+│   └── dash-delivery-v3.html          ← APPROVED DESIGN REFERENCE
+├── apps/
+│   ├── web/                           ← Next.js frontend (public site)
+│   │   ├── app/
+│   │   │   ├── (public)/              ← Public pages layout group
+│   │   │   │   ├── page.tsx           ← Homepage
+│   │   │   │   ├── services/page.tsx
+│   │   │   │   ├── track/page.tsx
+│   │   │   │   ├── book/page.tsx
+│   │   │   │   ├── quote/page.tsx
+│   │   │   │   ├── coverage/page.tsx
+│   │   │   │   ├── business/page.tsx
+│   │   │   │   ├── contact/page.tsx
+│   │   │   │   ├── about/page.tsx
+│   │   │   │   └── pricing/page.tsx
+│   │   │   ├── admin/                 ← Admin panel (protected)
+│   │   │   │   ├── login/page.tsx
+│   │   │   │   ├── dashboard/page.tsx
+│   │   │   │   ├── bookings/
+│   │   │   │   ├── quotes/
+│   │   │   │   ├── invoices/
+│   │   │   │   ├── content/
+│   │   │   │   ├── services/
+│   │   │   │   ├── testimonials/
+│   │   │   │   ├── pricing/
+│   │   │   │   ├── depots/
+│   │   │   │   ├── email-templates/
+│   │   │   │   ├── users/
+│   │   │   │   ├── reports/
+│   │   │   │   └── settings/
+│   │   ├── components/
+│   │   │   ├── ui/                    ← Reusable primitives
+│   │   │   ├── sections/              ← Homepage sections
+│   │   │   ├── admin/                 ← Admin panel components
+│   │   │   └── forms/                 ← All form components
+│   │   ├── lib/                       ← Utilities, API clients
+│   │   └── styles/                    ← globals.css, tailwind config
+│   └── api/                           ← Node.js + Express backend
+│       ├── src/
+│       │   ├── routes/                ← Express routers
+│       │   ├── controllers/
+│       │   ├── services/              ← Business logic
+│       │   ├── middleware/            ← Auth, rate limit, error handler
+│       │   ├── pdf/                   ← PDF generation templates
+│       │   ├── email/                 ← Email template renderer
+│       │   ├── jobs/                  ← BullMQ background jobs
+│       │   └── utils/
+│       └── prisma/
+│           ├── schema.prisma
+│           └── migrations/
+├── packages/
+│   ├── types/                         ← Shared TypeScript types
+│   └── utils/                         ← Shared utility functions
+├── .github/workflows/                 ← CI/CD pipelines
+└── docs/                              ← API documentation
+11. 
+SECURITY REQUIREMENTS
+Security Concern
+Implementation Required
+SQL Injection
+Prisma ORM with parameterised queries — no raw SQL with user input
+XSS Prevention
+All user input sanitised with DOMPurify server-side; CSP headers set
+CSRF Protection
+SameSite=Strict cookies; CSRF tokens on state-changing forms
+Rate Limiting
+Express-rate-limit on all API routes; Redis-backed for distributed deploy
+Authentication
+JWT with short expiry (15m); httpOnly refresh token; no tokens in localStorage
+Password Security
+Bcrypt with minimum cost factor 12; minimum 8 chars + complexity requirements
+File Upload Security
+File type whitelist (images only for uploads); size limit 5MB; virus scan optional
+API Key Protection
+All third-party API keys in environment variables only — never in client bundle
+HTTPS
+Enforced at Cloudflare level; HSTS header; HTTP→HTTPS redirect
+GDPR
+Cookie consent banner; privacy policy page; data deletion endpoint for users
+PCI Compliance
+No card data ever touches Dash servers — Stripe handles all card processing
+Security Headers
+Helmet.js on Express: X-Frame-Options, X-Content-Type-Options, HSTS, CSP
+Dependency Audits
+npm audit in CI pipeline — fail build on high-severity vulnerabilities
+Logging
+All admin actions logged to audit_log table; no passwords or tokens ever logged
+12. 
+DELIVERY MILESTONES & TIMELINE
+Milestone
+Deliverables
+Phase 1 — Foundation (Week 1–2)
+Project setup: monorepo, Next.js, Express, PostgreSQL, Prisma schema with all tables, CI/CD pipeline, staging environment, authentication system (admin login, JWT, role-based), environment configuration
+Phase 2 — Frontend Core (Week 3–4)
+Homepage fully built (all sections pixel-perfect matching HTML reference), light/dark mode, animations, particle canvas, custom cursor, marquee, all responsive breakpoints, remaining public pages scaffolded
+Phase 3 — Forms & Booking (Week 5–6)
+Multi-step booking form with Stripe payment, quote request form (3-step), contact form, parcel tracking page with live API, price calculator wired to database, address autocomplete, all confirmation emails
+Phase 4 — Admin Panel (Week 7–9)
+Full admin dashboard, bookings management, quotes management, invoice builder, PDF generation (invoice + quote + booking confirmation), email template editor, content CMS (all homepage sections editable), settings panel
+Phase 5 — Advanced Features (Week 10–11)
+Coverage map with interactive pins, reporting module (charts + CSV export), business accounts page, service pages with FAQs, tracking notification subscription, bulk status updates, audit logging
+Phase 6 — QA & Launch (Week 12)
+Full QA pass across all browsers (Chrome, Firefox, Safari, Edge), mobile testing (iOS + Android), performance optimisation to 95+ Lighthouse, security audit, GDPR compliance, DNS cutover, production deployment, handover documentation
+13. 
+ACCEPTANCE CRITERIA
+The following checklist must be fully satisfied before the project is accepted and final payment released:
+13.1 Design & Frontend
+All pages match dash-delivery-v3.html design reference — pixel-perfect on desktop (1440px)
+Responsive on mobile (375px), tablet (768px), and wide desktop (1920px)
+Light and dark mode work correctly on every page — no mixed-theme elements
+Custom cursor working on desktop browsers
+Particle canvas animation functioning in hero
+All scroll-reveal animations working on initial page load
+Marquee strip scrolls infinitely and pauses on hover
+Price calculator produces correct results matching the pricing matrix in the database
+Framer Motion animations do not cause layout shift (CLS = 0)
+13.2 Functionality
+Parcel tracking works: enter tracking number → display full timeline
+Pickup booking completes end-to-end: form → Stripe payment → confirmation email → tracking number
+Quote request works: form submitted → admin notified → PDF quote sent → customer can accept
+Invoice PDF generated correctly: all fields populated, VAT correct, Dash branding
+All transactional emails delivered within 60 seconds of trigger event
+Admin can edit every piece of content on the public website
+Admin login, roles, and session management all functioning correctly
+13.3 Performance & Quality
+Google Lighthouse score ≥ 95 on Performance, ≥ 90 on SEO, ≥ 90 on Accessibility
+Page load time < 2 seconds on standard broadband (tested with WebPageTest)
+Zero console errors in production
+All API endpoints return responses within 500ms under normal load
+Zero high-severity npm vulnerabilities (CI/CD enforced)
+All forms have client-side AND server-side validation
+Database migrations run cleanly from scratch — no manual steps
+13.4 Deliverables Handover
+Full source code in agreed GitHub repository — all branches merged to main
+Deployment documentation (how to deploy from scratch)
+Admin panel user guide (PDF)
+API documentation (Swagger/OpenAPI spec at /api/docs)
+Database schema diagram (ERD)
+All environment variables documented (with example .env file — no real secrets)
+Stripe webhook setup documented
+DNS and email authentication setup documented
+1-hour handover call with screen share walkthrough of admin panel
+14. 
+PROJECT CONTACT & SIGN-OFF
+Detail
+Information
+Client
+Dash Delivery Ltd
+Project Title
+Dash Delivery Full-Stack Website Platform
+Brief Version
+v1.0
+Design Reference File
+dash-delivery-v3.html (provided in project folder)
+Primary Technology
+Next.js 14, Node.js/Express, PostgreSQL, Prisma, Stripe
+Target Launch
+12 weeks from kick-off
+Agency
+Antigravity Studio
+This brief represents the complete and approved specification for the Dash Delivery web platform. Any features not described here that the client requests during development will be subject to a formal Change Request (CR) process and may incur additional cost and timeline adjustments. Antigravity Studio should confirm receipt and understanding of this brief in writing before development commences.
+Document prepared by: Dash Delivery Ltd
+For: Antigravity Studio Development Team
+Classification: Confidential — Do Not Distribute
