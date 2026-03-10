@@ -1,10 +1,11 @@
 import { Request, Response } from 'express';
 import { adminDb } from '../lib/firebase';
+import logger from '../lib/logger';
 
 export const getPublicContent = async (req: Request, res: Response) => {
   try {
     const snapshot = await adminDb.collection('contentBlocks').where('is_active', '==', true).get();
-    
+
     const content: any = {};
     snapshot.forEach(doc => {
       const b = doc.data();
@@ -44,7 +45,7 @@ export const getPublicStats = async (req: Request, res: Response) => {
       }
     });
   } catch (error) {
-    console.error('Get Public Stats Error:', error);
+    logger.error('Home/Dashboard API Error:', error);
     res.status(500).json({ success: false, message: 'Failed to fetch stats' });
   }
 };

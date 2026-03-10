@@ -7,6 +7,11 @@ service cloud.firestore {
       return request.auth != null && request.auth.token.role == 'ADMIN';
     }
 
+    // Helper to validate common fields
+    function validateInput(data) {
+      return data.email is string && data.email.size() > 0 && data.email.size() < 255;
+    }
+
     // Public Collections (Read-only for public, Write for Admin)
     match /contentBlocks/{docId} {
       allow read: if true;
@@ -33,9 +38,15 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    // Submission Collections (Public Create, Admin Read/Write)
+    match /priceRules/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Submission Collections (Public Create with validation, Admin Read/Write)
     match /bookings/{bookingId} {
-      allow create: if true;
+      allow create: if request.resource.data.keys().hasAll(['email', 'customer_name']) 
+                    && validateInput(request.resource.data);
       allow read, write: if isAdmin();
       
       // Tracking events subcollection
@@ -46,19 +57,20 @@ service cloud.firestore {
     }
     
     match /quotes/{quoteId} {
-      allow create: if true;
+      allow create: if request.resource.data.keys().hasAll(['email', 'service_type'])
+                    && validateInput(request.resource.data);
       allow read, write: if isAdmin();
     }
     
     match /contacts/{contactId} {
-      allow create: if true;
+      allow create: if request.resource.data.keys().hasAll(['email', 'message'])
+                    && validateInput(request.resource.data);
       allow read, write: if isAdmin();
     }
 
-    // User profiles
+    // User profiles - Strict ownership
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-      allow read, write: if isAdmin();
+      allow read, write: if (request.auth != null && request.auth.uid == userId) || isAdmin();
     }
   }
 }

@@ -1,24 +1,34 @@
 import { Request, Response } from 'express';
 import { adminDb } from '../lib/firebase';
+import { z } from 'zod';
+import logger from '../lib/logger';
+
+const QuoteSchema = z.object({
+  company_name: z.string().optional(),
+  contact_name: z.string().min(2),
+  email: z.string().email(),
+  phone: z.string().min(10),
+  from_country: z.string().min(2),
+  to_country: z.string().min(2),
+  service_type: z.string().min(1),
+  weight: z.number().positive(),
+  cargo_description: z.string().min(5),
+  message: z.string().optional(),
+});
+
+const UpdateQuoteSchema = z.object({
+  status: z.string().min(1),
+  price_offered: z.number().nonnegative().optional(),
+});
 
 // Public: Submit Quote Request
 export const createQuoteRequest = async (req: Request, res: Response) => {
-  const { company_name, contact_name, email, phone, from_country, to_country, service_type, weight, cargo_description, message } = req.body;
-
   try {
+    const validatedData = QuoteSchema.parse(req.body);
     const quoteRef = adminDb.collection('quotes').doc();
     const quoteData = {
+      ...validatedData,
       id: quoteRef.id,
-      company_name,
-      contact_name,
-      email,
-      phone,
-      from_country,
-      to_country,
-      service_type,
-      weight,
-      cargo_description,
-      message,
       status: 'NEW',
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
@@ -26,8 +36,11 @@ export const createQuoteRequest = async (req: Request, res: Response) => {
 
     await quoteRef.set(quoteData);
     res.status(201).json({ success: true, data: quoteData });
-  } catch (error) {
-    console.error('Create Quote Error:', error);
+  } catch (error: any) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ success: false, message: 'Validation failed', errors: error.errors });
+    }
+    logger.error('Create/Update Quote Error:', error);
     res.status(500).json({ success: false, message: 'Failed to submit quote request' });
   }
 };
@@ -47,19 +60,27 @@ export const getQuotes = async (req: Request, res: Response) => {
 // Admin: Update Quote (e.g. set price)
 export const updateQuote = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { status, price_offered } = req.body;
 
   try {
+    const validatedData = UpdateQuoteSchema.parse(req.body);
     const quoteRef = adminDb.collection('quotes').doc(id);
+    const quoteDoc = await quoteRef.get();
+
+    if (!quoteDoc.exists) {
+      return res.status(404).json({ success: false, message: 'Quote request not found' });
+    }
+
     await quoteRef.update({
-      status,
-      price_offered,
+      ...validatedData,
       updated_at: new Date().toISOString()
     });
-    
+
     const updatedDoc = await quoteRef.get();
     res.json({ success: true, data: updatedDoc.data() });
-  } catch (error) {
+  } catch (error: any) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ success: false, message: 'Validation failed', errors: error.errors });
+    }
     console.error('Update Quote Error:', error);
     res.status(500).json({ success: false, message: 'Failed to update quote' });
   }

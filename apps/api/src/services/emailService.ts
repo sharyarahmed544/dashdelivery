@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import { adminDb } from '../lib/firebase';
+import logger from '../lib/logger';
 
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
@@ -21,7 +22,7 @@ export const sendEmail = async (to: string, subject: string, html: string, attac
     });
     return true;
   } catch (error) {
-    console.error('Email send failed:', error);
+    logger.error('Email/Transactional Error:', error);
     return false;
   }
 };
@@ -29,7 +30,7 @@ export const sendEmail = async (to: string, subject: string, html: string, attac
 export const sendTransactionalEmail = async (templateKey: string, to: string, variables: any, attachments?: any[]) => {
   try {
     const snapshot = await adminDb.collection('emailTemplates').where('key', '==', templateKey).limit(1).get();
-    
+
     if (snapshot.empty) {
       console.error(`Email template ${templateKey} not found`);
       return false;

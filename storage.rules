@@ -9,7 +9,7 @@ service firebase.storage {
 
     // Invoices and PDFs
     match /invoices/{invoiceId} {
-      allow read: if true; // Publicly accessible via signed link or name (depending on use case)
+      allow read: if request.auth != null && (isAdmin() || request.auth.uid == resource.metadata.userId);
       allow write: if isAdmin();
     }
 
@@ -21,7 +21,8 @@ service firebase.storage {
     
     // Catch-all
     match /{allPaths=**} {
-      allow read, write: if isAdmin();
+      allow read: if isAdmin();
+      allow write: if isAdmin();
     }
   }
 }

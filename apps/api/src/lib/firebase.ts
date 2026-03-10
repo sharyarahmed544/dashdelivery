@@ -1,4 +1,5 @@
 import * as admin from 'firebase-admin';
+import logger from './logger';
 
 if (!admin.apps.length) {
   try {
@@ -10,9 +11,9 @@ if (!admin.apps.length) {
       }),
       storageBucket: `${process.env.FIREBASE_PROJECT_ID}.appspot.com`,
     });
-    console.log('Firebase Admin initialized successfully');
+    logger.info('Firebase Admin initialized successfully');
   } catch (error) {
-    console.error('Firebase admin initialization error', error);
+    logger.error('Firebase admin initialization error', error);
   }
 }
 

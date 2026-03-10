@@ -1,10 +1,19 @@
 import { Request, Response } from 'express';
 import { adminDb } from '../lib/firebase';
+import { z } from 'zod';
+import logger from '../lib/logger';
+
+const PricingSchema = z.object({
+  from_country: z.string().min(2),
+  to_country: z.string().min(2),
+  service_type: z.string().min(1),
+  weight: z.number().positive(),
+});
 
 export const calculatePrice = async (req: Request, res: Response) => {
-  const { from_country, to_country, service_type, weight } = req.body;
-
   try {
+    const validatedData = PricingSchema.parse(req.body);
+    const { from_country, to_country, service_type, weight } = validatedData;
     const snapshot = await adminDb.collection('priceRules')
       .where('from_country', '==', from_country)
       .where('to_country', '==', to_country)
@@ -45,10 +54,13 @@ export const calculatePrice = async (req: Request, res: Response) => {
       }
     });
   } catch (error: any) {
-    console.error('Calculate Price Error:', {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ success: false, message: 'Validation failed', errors: error.errors });
+    }
+    logger.error('Calculate Price Error:', {
       message: error.message,
       stack: error.stack,
-      request: { from_country, to_country, service_type, weight }
+      request: req.body
     });
     res.status(500).json({ success: false, message: 'Price calculation failed' });
   }

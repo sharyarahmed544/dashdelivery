@@ -1,18 +1,45 @@
+# Dependencies
 node_modules/
-.env*
-firebassdk.txt
-brief.txt
-dash-antigravity-brief.docx
+
+# Environment & Secrets
+.env
+.env.local
+.env.*.local
+*-credentials.json
+dashdelivery-*.json
 *.json
 !package.json
 !package-lock.json
 !tsconfig.json
+!firebase.json
+!firestore.indexes.json
+!firestore.rules
+!storage.rules
+!*.schema.json
+secrets/
+.firebase/
+.firebaserc
+
+# Build outputs
 .next/
 out/
 build/
-*.log
-.DS_Store
-*.pem
+dist/
 *.tsbuildinfo
 next-env.d.ts
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Project-specific
+firebassdk.txt
+brief.txt
+dash-antigravity-brief.docx
 brain/

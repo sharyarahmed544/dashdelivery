@@ -1,5 +1,18 @@
 import { Request, Response } from 'express';
 import { adminDb } from '../lib/firebase';
+import { z } from 'zod';
+import logger from '../lib/logger';
+
+const PriceRuleSchema = z.object({
+  id: z.string().optional(),
+  from_country: z.string().min(2),
+  to_country: z.string().min(2),
+  service_type: z.string().min(1),
+  base_price: z.union([z.number(), z.string()]).transform(v => Number(v)),
+  per_kg_price: z.union([z.number(), z.string()]).transform(v => Number(v)),
+  fuel_levy_pct: z.union([z.number(), z.string()]).transform(v => Number(v)),
+  is_active: z.boolean(),
+});
 
 export const getPriceRules = async (req: Request, res: Response) => {
   try {
@@ -13,9 +26,9 @@ export const getPriceRules = async (req: Request, res: Response) => {
 };
 
 export const upsertPriceRule = async (req: Request, res: Response) => {
-  const { id, from_country, to_country, service_type, base_price, per_kg_price, fuel_levy_pct, is_active } = req.body;
-
   try {
+    const validatedData = PriceRuleSchema.parse(req.body);
+    const { id, from_country, to_country, service_type, base_price, per_kg_price, fuel_levy_pct, is_active } = validatedData;
     const ruleRef = id ? adminDb.collection('priceRules').doc(id) : adminDb.collection('priceRules').doc();
     const ruleData = {
       from_country,
@@ -38,8 +51,11 @@ export const upsertPriceRule = async (req: Request, res: Response) => {
 
     const saved = await ruleRef.get();
     res.json({ success: true, data: { id: saved.id, ...saved.data() } });
-  } catch (error) {
-    console.error('Upsert Price Rule Error:', error);
+  } catch (error: any) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ success: false, message: 'Validation failed', errors: error.errors });
+    }
+    logger.error('Upsert Price Rule Error:', error);
     res.status(500).json({ success: false, message: 'Failed to save price rule' });
   }
 };

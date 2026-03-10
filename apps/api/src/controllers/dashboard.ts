@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { adminDb } from '../lib/firebase';
+import logger from '../lib/logger';
 
 export const getDashboardStats = async (req: Request, res: Response) => {
   try {
@@ -52,8 +53,8 @@ export const getDashboardStats = async (req: Request, res: Response) => {
         status_breakdown: statusBreakdown
       }
     });
-  } catch (error) {
-    console.error('Dashboard Stats Error:', error);
+  } catch (error: unknown) {
+    logger.error('Dashboard Stats Error:', error);
     res.status(500).json({ success: false, message: 'Failed to fetch dashboard stats' });
   }
 };

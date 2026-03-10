@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { adminDb } from '../lib/firebase';
+import logger from '../lib/logger';
 
 export const trackParcel = async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -21,19 +22,19 @@ export const trackParcel = async (req: Request, res: Response) => {
     const eventsSnapshot = await bookingDoc.ref.collection('tracking_events')
       .orderBy('occurred_at', 'desc')
       .get();
-    
+
     const tracking_events = eventsSnapshot.docs.map(e => ({ id: e.id, ...e.data() }));
 
     // Map to frontend expected format
     const statuses = [
-      'BOOKED', 
-      'COLLECTED', 
-      'IN_SORTING_HUB', 
-      'CUSTOMS_CLEARED', 
-      'OUT_FOR_DELIVERY', 
+      'BOOKED',
+      'COLLECTED',
+      'IN_SORTING_HUB',
+      'CUSTOMS_CLEARED',
+      'OUT_FOR_DELIVERY',
       'DELIVERED'
     ];
-    
+
     const currentIndex = statuses.indexOf(booking.status);
     const progress = Math.round(((currentIndex + 1) / statuses.length) * 100);
 
@@ -56,7 +57,7 @@ export const trackParcel = async (req: Request, res: Response) => {
       }
     });
   } catch (error) {
-    console.error('Track Parcel Error:', error);
+    logger.error('Track Parcel Error:', error);
     res.status(500).json({ success: false, message: 'Tracking failed' });
   }
 };

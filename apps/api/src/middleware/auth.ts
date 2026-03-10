@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { adminAuth } from '../lib/firebase';
+import logger from '../lib/logger';
 
 export interface AuthRequest extends Request {
   user?: {
@@ -24,7 +25,7 @@ export const authenticateJWT = async (req: AuthRequest, res: Response, next: Nex
       };
       next();
     } catch (error) {
-      console.error('Firebase Auth Error:', error);
+      logger.error('Firebase Auth Error:', error);
       return res.status(403).json({ success: false, message: 'Invalid or expired token' });
     }
   } else {
