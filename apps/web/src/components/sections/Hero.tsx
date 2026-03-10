@@ -2,8 +2,16 @@
 
 import ParticleCanvas from "@/components/ui/ParticleCanvas";
 import LiveMapPanel from "@/components/ui/LiveMapPanel";
+import useSWR from 'swr';
+import { fetcher } from '@/lib/api';
 
 export default function Hero() {
+  const { data: content } = useSWR('/content', fetcher);
+  const { data: stats } = useSWR('/stats', fetcher);
+
+  const heroTitle = content?.['hero-title']?.title || 'SPEED DELIVERED. EVERYWHERE.';
+  const heroSub = content?.['hero-sub']?.body || 'From London to Lisbon, Edinburgh to Athens — Dash moves your parcels faster, smarter and safer.';
+
   return (
     <section className="hero">
       <ParticleCanvas />
@@ -14,12 +22,12 @@ export default function Hero() {
             <span className="eyebrow-text">UK & Europe's Fastest Courier — Est. 2015</span>
           </div>
           <h1 className="hero-h1">
-            <span className="w1">SPEED</span>
-            <span className="w2">DELIVERED.</span>
-            <span className="w3">EVERYWHERE.</span>
+            {heroTitle.split(' ').map((word: string, i: number) => (
+              <span key={i} className={`w${(i % 3) + 1}`}>{word} </span>
+            ))}
           </h1>
           <p className="hero-body">
-            From London to Lisbon, Edinburgh to Athens — Dash moves your parcels faster, smarter and safer. Real-time tracking, same-day options, zero excuses.
+            {heroSub}
           </p>
           <div className="hero-btns">
             <button 
@@ -34,18 +42,12 @@ export default function Hero() {
             >
               ↗ Track Your Parcel
             </button>
-            <button 
-              onClick={() => document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' })}
-              className="btn-border"
-            >
-              🏢 Services
-            </button>
           </div>
           <div className="hero-stats-row">
-            <div className="hstat"><div className="hstat-n">4.2M+</div><div className="hstat-l">Parcels Delivered</div></div>
-            <div className="hstat"><div className="hstat-n">28</div><div className="hstat-l">Countries</div></div>
-            <div className="hstat"><div className="hstat-n">99.4%</div><div className="hstat-l">On-Time Rate</div></div>
-            <div className="hstat"><div className="hstat-n">12K+</div><div className="hstat-l">Businesses</div></div>
+            <div className="hstat"><div className="hstat-n">{(stats?.parcels_delivered / 1000000).toFixed(1)}M+</div><div className="hstat-l">Parcels Delivered</div></div>
+            <div className="hstat"><div className="hstat-n">{stats?.countries_covered || 28}</div><div className="hstat-l">Countries</div></div>
+            <div className="hstat"><div className="hstat-n">{stats?.on_time_rate || 99.4}%</div><div className="hstat-l">On-Time Rate</div></div>
+            <div className="hstat"><div className="hstat-n">{(stats?.businesses / 1000).toFixed(0)}K+</div><div className="hstat-l">Businesses</div></div>
           </div>
         </div>
         <LiveMapPanel />

@@ -1,82 +1,131 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/lib/firebase/config";
-import { useRouter } from "next/navigation";
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { auth } from '@/lib/firebase/config';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 
 export default function AdminLogin() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
+    setError('');
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      router.push("/admin");
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Store minimal user info for UI (optional, Firebase keeps its own state)
+      localStorage.setItem('user', JSON.stringify({
+        id: user.uid,
+        email: user.email,
+        name: user.displayName || 'Admin'
+      }));
+
+      router.push('/admin/dashboard');
     } catch (err: any) {
-      setError(err.message || "Failed to login");
+      console.error('Login Error:', err);
+      setError('Login failed. Please check your credentials.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg)] flex items-center justify-center p-6 text-white relative overflow-hidden">
-      {/* Background glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[var(--og)]/10 blur-[120px] rounded-full pointer-events-none"></div>
-      
-      <div className="max-w-md w-full relative z-10 bg-white/5 border border-white/10 p-8 rounded-2xl backdrop-blur-xl animate-in fade-in slide-in-from-bottom-8 duration-700">
-        <div className="text-center mb-8">
-          <div className="font-['Syne'] font-extrabold text-3xl tracking-tight uppercase mb-2">
-            Dash <em className="text-[var(--og)] not-italic">Admin</em>
+    <div className="admin-login-page" style={{
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: 'var(--bg-alt)'
+    }}>
+      <div className="login-card reveal visible" style={{
+        width: '100%',
+        maxWidth: '400px',
+        padding: '40px',
+        background: 'var(--bg)',
+        borderRadius: '16px',
+        border: '1px solid var(--border)',
+        boxShadow: '0 20px 40px rgba(0,0,0,0.5)'
+      }}>
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <div className="logo" style={{ fontSize: '24px', fontWeight: '900', color: '#ff4500' }}>
+            DASH <span style={{ color: 'var(--text)' }}>DELIVERY</span>
           </div>
-          <p className="text-gray-400">Sign in to access the control panel</p>
+          <div style={{ fontSize: '14px', opacity: 0.6, marginTop: '8px' }}>Admin Control Center</div>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-5">
-          {error && (
-            <div className="bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-3 rounded-lg text-sm text-center">
-              {error}
-            </div>
-          )}
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Email Address</label>
-            <input 
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
-              className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[var(--og)] transition-colors placeholder:text-gray-600"
-              placeholder="admin@dash-delivery.com"
-            />
+        {error && (
+          <div style={{
+            background: 'rgba(255, 69, 0, 0.1)',
+            color: '#ff4500',
+            padding: '12px',
+            borderRadius: '8px',
+            fontSize: '13px',
+            marginBottom: '20px',
+            border: '1px solid rgba(255, 69, 0, 0.2)'
+          }}>
+            {error}
           </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Password</label>
-            <input 
-              type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
-              className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[var(--og)] transition-colors placeholder:text-gray-600"
-              placeholder="••••••••"
-            />
-          </div>
+        )}
 
-          <button 
+        <form onSubmit={handleLogin}>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', fontSize: '13px', marginBottom: '8px', opacity: 0.8 }}>Email Address</label>
+            <input
+              type="email"
+              required
+              style={{
+                width: '100%',
+                padding: '12px',
+                background: 'var(--bg-alt)',
+                border: '1px solid var(--border)',
+                borderRadius: '8px',
+                color: 'var(--text)'
+              }}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+          <div style={{ marginBottom: '32px' }}>
+            <label style={{ display: 'block', fontSize: '13px', marginBottom: '8px', opacity: 0.8 }}>Password</label>
+            <input
+              type="password"
+              required
+              style={{
+                width: '100%',
+                padding: '12px',
+                background: 'var(--bg-alt)',
+                border: '1px solid var(--border)',
+                borderRadius: '8px',
+                color: 'var(--text)'
+              }}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+          <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[var(--og)] text-white font-bold py-3.5 rounded-lg uppercase tracking-wider hover:bg-[#e66000] focus:ring-4 focus:ring-[var(--og)]/20 transition-all disabled:opacity-50 mt-4"
+            style={{
+              width: '100%',
+              padding: '14px',
+              background: '#ff4500',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              fontWeight: '700',
+              cursor: 'pointer',
+              opacity: loading ? 0.7 : 1
+            }}
           >
-            {loading ? "Verifying..." : "Sign In →"}
+            {loading ? 'Authenticating...' : 'Sign In →'}
           </button>
         </form>
       </div>

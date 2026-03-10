@@ -1,0 +1,27 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Helper to check if admin
+    function isAdmin() {
+      return request.auth != null && request.auth.token.role == 'ADMIN';
+    }
+
+    // Invoices and PDFs
+    match /invoices/{invoiceId} {
+      allow read: if true; // Publicly accessible via signed link or name (depending on use case)
+      allow write: if isAdmin();
+    }
+
+    // Public Assets
+    match /public/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    // Catch-all
+    match /{allPaths=**} {
+      allow read, write: if isAdmin();
+    }
+  }
+}

@@ -1,0 +1,217 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// Enums removed for SQLite compatibility
+
+model User {
+  id            String    @id @default(uuid())
+  name          String
+  email         String    @unique
+  password_hash String
+  role          String    @default("CUSTOMER")
+  is_active     Boolean   @default(true)
+  last_login    DateTime?
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+  news_articles NewsArticle[]
+}
+
+model Booking {
+  id               String        @id @default(uuid())
+  tracking_number  String        @unique
+  pickup_address   String
+  delivery_address String
+  service_type     String
+  weight           Float
+  dimensions       String?
+  status           String        @default("BOOKED")
+  estimated_price  Float
+  paid_at          DateTime?
+  notes            String?
+  created_at       DateTime      @default(now())
+  updated_at       DateTime      @updatedAt
+  tracking_events  TrackingEvent[]
+  invoices         Invoice[]
+}
+
+model Quote {
+  id                String      @id @default(uuid())
+  company_name      String?
+  contact_name      String
+  email             String
+  phone             String
+  from_country      String
+  to_country        String
+  service_type      String
+  weight            Float
+  cargo_description String?
+  message           String?
+  status            String      @default("NEW")
+  price_offered     Float?
+  created_at        DateTime    @default(now())
+  updated_at        DateTime    @updatedAt
+  invoices          Invoice[]
+}
+
+model Invoice {
+  id               String        @id @default(uuid())
+  invoice_number   String        @unique
+  booking_id       String?
+  quote_id         String?
+  customer_name    String
+  customer_address String
+  line_items       String        // Changed to String for SQLite compatibility
+  subtotal         Float
+  vat_amount       Float
+  total            Float
+  currency         String        @default("GBP")
+  status           String        @default("DRAFT")
+  due_date         DateTime
+  paid_at          DateTime?
+  pdf_url          String?
+  created_at       DateTime      @default(now())
+  updated_at       DateTime      @updatedAt
+  booking          Booking?      @relation(fields: [booking_id], references: [id])
+  quote            Quote?        @relation(fields: [quote_id], references: [id])
+}
+
+model TrackingEvent {
+  id          String    @id @default(uuid())
+  booking_id  String
+  status      String
+  location    String
+  description String
+  occurred_at DateTime  @default(now())
+  created_at  DateTime  @default(now())
+  booking     Booking   @relation(fields: [booking_id], references: [id])
+}
+
+model Contact {
+  id         String        @id @default(uuid())
+  name       String
+  email      String
+  phone      String?
+  subject    String
+  message    String
+  status     String        @default("NEW")
+  replied_at DateTime?
+  created_at DateTime      @default(now())
+  updated_at DateTime      @updatedAt
+}
+
+model Service {
+  id          String   @id @default(uuid())
+  slug        String   @unique
+  name        String
+  description String
+  icon        String
+  price_from  Float
+  duration    String
+  is_active   Boolean  @default(true)
+  sort_order  Int      @default(0)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+}
+
+model Testimonial {
+  id              String   @id @default(uuid())
+  author_name     String
+  author_role     String?
+  company         String?
+  avatar_initials String?
+  rating          Int      @default(5)
+  quote           String
+  is_published    Boolean  @default(false)
+  sort_order      Int      @default(0)
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+}
+
+model ContentBlock {
+  id         String   @id @default(uuid())
+  key        String   @unique
+  title      String?
+  body       String?
+  cta_text   String?
+  cta_url    String?
+  is_active  Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model SiteSetting {
+  id         String      @id @default(uuid())
+  key        String      @unique
+  value      String
+  type       String      @default("text")
+  created_at DateTime    @default(now())
+  updated_at DateTime    @updatedAt
+}
+
+model PriceRule {
+  id             String   @id @default(uuid())
+  from_country   String
+  to_country     String
+  service_type   String
+  base_price     Float
+  per_kg_price   Float
+  fuel_levy_pct  Float    @default(0)
+  is_active      Boolean  @default(true)
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+}
+
+model DepotLocation {
+  id         String   @id @default(uuid())
+  city       String
+  country    String
+  address    String
+  lat        Float
+  lng        Float
+  is_active  Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model NewsArticle {
+  id           String    @id @default(uuid())
+  title        String
+  slug         String    @unique
+  excerpt      String?
+  body         String
+  cover_image  String?
+  author_id    String
+  published_at DateTime?
+  is_published Boolean   @default(false)
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
+  author       User      @relation(fields: [author_id], references: [id])
+}
+
+model EmailTemplate {
+  id         String   @id @default(uuid())
+  key        String   @unique
+  subject    String
+  html_body  String
+  text_body  String?
+  variables  String?  // Changed to String for SQLite compatibility
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model ApiLog {
+  id              String   @id @default(uuid())
+  endpoint        String
+  method          String
+  ip              String?
+  user_agent      String?
+  response_status Int
+  duration_ms     Int
+  created_at      DateTime @default(now())
+}

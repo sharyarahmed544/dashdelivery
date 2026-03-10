@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { getTrackingInfo, TrackingInfo } from '@/app/actions/tracking';
+import { api } from '@/lib/api';
 
 export function TrackerWidget() {
   const [trackingId, setTrackingId] = useState('');
-  const [trackingData, setTrackingData] = useState<TrackingInfo | null>(null);
+  const [trackingData, setTrackingData] = useState<any | null>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -13,17 +13,18 @@ export function TrackerWidget() {
     if (!trackingId) return;
     setLoading(true);
     setError('');
-    
+
     try {
-      const data = await getTrackingInfo(trackingId);
-      if (data) {
-        setTrackingData(data);
+      const { data } = await api.get(`/track/${trackingId}`);
+      if (data.success) {
+        setTrackingData(data.data);
       } else {
         setError('Tracking ID not found. Please check and try again.');
         setTrackingData(null);
       }
     } catch (err) {
-      setError('An error occurred while tracking. Please try again.');
+      setError('Tracking ID not found. Please check and try again.');
+      setTrackingData(null);
     } finally {
       setLoading(false);
     }
@@ -79,15 +80,15 @@ export function TrackerWidget() {
             </div>
             <div className="t-input-row">
               <div className="t-input-wrap">
-                <input 
-                  className="t-inp" 
-                  placeholder="e.g. DD-2024-887741" 
-                  type="text" 
+                <input
+                  className="t-inp"
+                  placeholder="e.g. DD-2024-887741"
+                  type="text"
                   value={trackingId}
                   onChange={(e) => setTrackingId(e.target.value)}
                 />
-                <button 
-                  className="t-btn" 
+                <button
+                  className="t-btn"
                   onClick={handleTrack}
                   disabled={loading}
                   style={{ opacity: loading ? 0.6 : 1 }}
@@ -111,7 +112,7 @@ export function TrackerWidget() {
                 </div>
 
                 <div className="timeline">
-                  {trackingData.events.map((event, idx) => (
+                  {trackingData.events.map((event: any, idx: number) => (
                     <div key={idx} className={`tl-item tl-${event.type}`}>
                       <div className="tl-line-col">
                         <div className="tl-ico">{event.icon}</div>

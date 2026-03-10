@@ -33,13 +33,13 @@ export default function Nav() {
         {[
           { name: "Services", id: "services" },
           { name: "Track", id: "track" },
-          { name: "Coverage", id: "coverage" },
           { name: "Pricing", id: "pricing" },
+          { name: "Business", id: "business" },
           { name: "About", id: "about" }
         ].map((item) => (
           <Link
             key={item.name}
-            href={`/#${item.id}`}
+            href={`/${item.id}`}
             className="font-[family-name:var(--font-syne)] text-[11px] font-bold tracking-[2px] uppercase text-[var(--text3)] no-underline transition-colors duration-300 hover:text-[var(--o2)]"
           >
             {item.name}
@@ -52,12 +52,12 @@ export default function Nav() {
           <span className="h-[6px] w-[6px] rounded-full bg-[#22c55e] shadow-[0_0_7px_#22c55e] animate-[blink_2s_infinite]"></span>
           0800 DASH 247
         </div>
-        <button 
-          onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}
+        <Link 
+          href="/quote"
           className="font-[family-name:var(--font-syne)] text-[11px] font-bold tracking-[2px] uppercase text-white bg-[var(--og)] outline-none border-none py-[11px] px-6 rounded hover:-translate-y-[2px] hover:shadow-[0_8px_24px_rgba(255,69,0,0.35)] transition-all duration-200"
         >
           Get a Quote
-        </button>
+        </Link>
       </div>
     </nav>
   );
