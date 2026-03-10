@@ -2,7 +2,7 @@
 
 export function Coverage() {
   return (
-    <section style={{ background: 'var(--bg)', borderTop: '1px solid var(--border)' }}>
+    <section id="coverage" style={{ background: 'var(--bg)', borderTop: '1px solid var(--border)' }}>
       <div className="coverage-inner">
         <div className="reveal">
           <div className="sec-eye">Coverage</div>

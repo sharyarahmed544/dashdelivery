@@ -40,10 +40,10 @@ export default function RootLayout({
       <body
         className={`${bebasNeue.variable} ${syne.variable} ${dmSans.variable} antialiased`}
       >
-        <Cursor />
         <ThemeToggle />
         <Nav />
         {children}
+        <Cursor />
       </body>
     </html>
   );

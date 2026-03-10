@@ -1,22 +1,36 @@
 'use client';
 
 import { useState } from 'react';
+import { getTrackingInfo, TrackingInfo } from '@/app/actions/tracking';
 
 export function TrackerWidget() {
-  const [btnText, setBtnText] = useState('Track →');
-  const [btnOpacity, setBtnOpacity] = useState(1);
+  const [trackingId, setTrackingId] = useState('');
+  const [trackingData, setTrackingData] = useState<TrackingInfo | null>(null);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleTrack = () => {
-    setBtnText('Searching...');
-    setBtnOpacity(0.65);
-    setTimeout(() => {
-      setBtnText('Track →');
-      setBtnOpacity(1);
-    }, 1500);
+  const handleTrack = async () => {
+    if (!trackingId) return;
+    setLoading(true);
+    setError('');
+    
+    try {
+      const data = await getTrackingInfo(trackingId);
+      if (data) {
+        setTrackingData(data);
+      } else {
+        setError('Tracking ID not found. Please check and try again.');
+        setTrackingData(null);
+      }
+    } catch (err) {
+      setError('An error occurred while tracking. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <section className="tracker-sec sec-alt">
+    <section id="track" className="tracker-sec sec-alt">
       <div className="tracker-wrap">
         <div>
           <div className="sec-eye">Real-Time Tracking</div>
@@ -65,47 +79,60 @@ export function TrackerWidget() {
             </div>
             <div className="t-input-row">
               <div className="t-input-wrap">
-                <input className="t-inp" placeholder="e.g. DD-2024-887741" type="text" />
+                <input 
+                  className="t-inp" 
+                  placeholder="e.g. DD-2024-887741" 
+                  type="text" 
+                  value={trackingId}
+                  onChange={(e) => setTrackingId(e.target.value)}
+                />
                 <button 
                   className="t-btn" 
                   onClick={handleTrack}
-                  style={{ opacity: btnOpacity }}
+                  disabled={loading}
+                  style={{ opacity: loading ? 0.6 : 1 }}
                 >
-                  {btnText}
+                  {loading ? 'Searching...' : 'Track →'}
                 </button>
               </div>
+              {error && <p className="text-red-500 text-xs mt-2 ml-4">{error}</p>}
             </div>
-            <div className="eta-wrap">
-              <div className="eta-top">
-                <span className="eta-label">Journey Progress</span>
-                <span className="eta-pct">68% Complete</span>
+
+            {trackingData && (
+              <>
+                <div className="eta-wrap">
+                  <div className="eta-top">
+                    <span className="eta-label">Journey Progress</span>
+                    <span className="eta-pct">{trackingData.progress}% Complete</span>
+                  </div>
+                  <div className="eta-bar">
+                    <div className="eta-fill" style={{ width: `${trackingData.progress}%` }}></div>
+                  </div>
+                </div>
+
+                <div className="timeline">
+                  {trackingData.events.map((event, idx) => (
+                    <div key={idx} className={`tl-item tl-${event.type}`}>
+                      <div className="tl-line-col">
+                        <div className="tl-ico">{event.icon}</div>
+                        {idx !== trackingData.events.length - 1 && <div className="tl-vline"></div>}
+                      </div>
+                      <div className="tl-content">
+                        <div className="tl-title">{event.status}</div>
+                        <div className="tl-detail">{event.location}</div>
+                        <div className="tl-time">{event.timestamp}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {!trackingData && !loading && !error && (
+              <div className="text-center py-12 opacity-30">
+                <p className="text-sm italic">Enter your tracking number to see live updates</p>
               </div>
-              <div className="eta-bar">
-                <div className="eta-fill"></div>
-              </div>
-            </div>
-            <div className="timeline">
-              <div className="tl-item tl-done">
-                <div className="tl-line-col"><div className="tl-ico">✅</div><div className="tl-vline"></div></div>
-                <div className="tl-content"><div className="tl-title">Collected from Sender</div><div className="tl-detail">Manchester Depot, Unit 4</div><div className="tl-time">Today, 07:32</div></div>
-              </div>
-              <div className="tl-item tl-done">
-                <div className="tl-line-col"><div className="tl-ico">✅</div><div className="tl-vline"></div></div>
-                <div className="tl-content"><div className="tl-title">Arrived at Sorting Hub</div><div className="tl-detail">Birmingham National Hub</div><div className="tl-time">Today, 09:15</div></div>
-              </div>
-              <div className="tl-item tl-done">
-                <div className="tl-line-col"><div className="tl-ico">✅</div><div className="tl-vline"></div></div>
-                <div className="tl-content"><div className="tl-title">Customs Cleared</div><div className="tl-detail">Electronic clearance — no delays</div><div className="tl-time">Today, 10:48</div></div>
-              </div>
-              <div className="tl-item tl-active">
-                <div className="tl-line-col"><div className="tl-ico">🚚</div><div className="tl-vline"></div></div>
-                <div className="tl-content"><div className="tl-title">Out for Delivery — Driver: James T.</div><div className="tl-detail">2.4km away · Van: EK23 DDF</div><div className="tl-time">ETA: 14:30 — 2 stops ahead</div></div>
-              </div>
-              <div className="tl-item tl-pending">
-                <div className="tl-line-col"><div className="tl-ico">📦</div></div>
-                <div className="tl-content"><div className="tl-title">Delivered & Signed For</div><div className="tl-detail">Awaiting delivery</div><div className="tl-time">Expected 14:30</div></div>
-              </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

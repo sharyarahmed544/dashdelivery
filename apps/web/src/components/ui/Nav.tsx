@@ -23,20 +23,26 @@ export default function Nav() {
           : ""
       }`}
     >
-      <Link href="/" className="flex items-center gap-1 font-[family-name:var(--font-bebas)] text-[26px] tracking-[4px] no-underline">
-        <span className="bg-[var(--og2)] bg-clip-text text-transparent">DASH</span>
-        <span className="text-[rgba(255,107,0,0.3)] mx-[2px]">/</span>
-        <span className="text-[var(--text)]">DELIVERY</span>
+      <Link href="/" className="nav-logo">
+        <span className="nd">DASH</span>
+        <span className="ns">/</span>
+        <span className="nd2">DELIVERY</span>
       </Link>
       
       <div className="flex gap-[30px]">
-        {["Services", "Track", "Coverage", "Business", "Pricing", "About"].map((item) => (
+        {[
+          { name: "Services", id: "services" },
+          { name: "Track", id: "track" },
+          { name: "Coverage", id: "coverage" },
+          { name: "Pricing", id: "pricing" },
+          { name: "About", id: "about" }
+        ].map((item) => (
           <Link
-            key={item}
-            href={`/${item.toLowerCase()}`}
+            key={item.name}
+            href={`/#${item.id}`}
             className="font-[family-name:var(--font-syne)] text-[11px] font-bold tracking-[2px] uppercase text-[var(--text3)] no-underline transition-colors duration-300 hover:text-[var(--o2)]"
           >
-            {item}
+            {item.name}
           </Link>
         ))}
       </div>
@@ -46,7 +52,10 @@ export default function Nav() {
           <span className="h-[6px] w-[6px] rounded-full bg-[#22c55e] shadow-[0_0_7px_#22c55e] animate-[blink_2s_infinite]"></span>
           0800 DASH 247
         </div>
-        <button className="font-[family-name:var(--font-syne)] text-[11px] font-bold tracking-[2px] uppercase text-white bg-[var(--og)] outline-none border-none py-[11px] px-6 rounded hover:-translate-y-[2px] hover:shadow-[0_8px_24px_rgba(255,69,0,0.35)] transition-all duration-200" style={{ cursor: "none" }}>
+        <button 
+          onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}
+          className="font-[family-name:var(--font-syne)] text-[11px] font-bold tracking-[2px] uppercase text-white bg-[var(--og)] outline-none border-none py-[11px] px-6 rounded hover:-translate-y-[2px] hover:shadow-[0_8px_24px_rgba(255,69,0,0.35)] transition-all duration-200"
+        >
           Get a Quote
         </button>
       </div>

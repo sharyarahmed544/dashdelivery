@@ -2,7 +2,7 @@
 
 export function ServicesBento() {
   return (
-    <section className="sec">
+    <section id="services" className="sec">
       <div className="sec-eye">Our Services</div>
       <h2 className="sec-h reveal">
         THE COMPLETE<br />DELIVERY <em>ECOSYSTEM</em>

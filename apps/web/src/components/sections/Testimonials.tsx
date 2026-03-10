@@ -2,7 +2,7 @@
 
 export function Testimonials() {
   return (
-    <section className="sec sec-alt">
+    <section id="about" className="sec sec-alt">
       <div className="sec-eye">Customer Stories</div>
       <h2 className="sec-h reveal">12,000+ BUSINESSES<br /><em>CAN'T BE WRONG</em></h2>
       <div className="testi-grid">

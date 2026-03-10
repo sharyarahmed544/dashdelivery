@@ -29,7 +29,7 @@ export function PriceCalculator() {
   const totalStr = total.toFixed(2).split('.');
 
   return (
-    <section className="sec sec-alt">
+    <section id="pricing" className="sec sec-alt">
       <div className="sec-eye">Instant Pricing</div>
       <h2 className="sec-h reveal">
         GET YOUR PRICE<br /><em>IN SECONDS</em>

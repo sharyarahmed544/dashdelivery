@@ -22,9 +22,24 @@ export default function Hero() {
             From London to Lisbon, Edinburgh to Athens — Dash moves your parcels faster, smarter and safer. Real-time tracking, same-day options, zero excuses.
           </p>
           <div className="hero-btns">
-            <button className="btn-fire"><span>📦 Book a Delivery</span></button>
-            <button className="btn-border">↗ Track Your Parcel</button>
-            <button className="btn-border">🏢 Business Accounts</button>
+            <button 
+              onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}
+              className="btn-fire"
+            >
+              <span>📦 Book a Delivery</span>
+            </button>
+            <button 
+              onClick={() => document.getElementById('track')?.scrollIntoView({ behavior: 'smooth' })}
+              className="btn-border"
+            >
+              ↗ Track Your Parcel
+            </button>
+            <button 
+              onClick={() => document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' })}
+              className="btn-border"
+            >
+              🏢 Services
+            </button>
           </div>
           <div className="hero-stats-row">
             <div className="hstat"><div className="hstat-n">4.2M+</div><div className="hstat-l">Parcels Delivered</div></div>
