@@ -15,16 +15,17 @@ export const getDashboardStats = async (req: Request, res: Response) => {
       newContactsSnap,
       revenueSnap
     ] = await Promise.all([
-      adminDb.collection('bookings').where('created_at', '>=', today.toISOString()).count().get(),
+      adminDb.collection('bookings').where('created_at', '>=', today).count().get(),
       adminDb.collection('quotes').where('status', '==', 'NEW').count().get(),
       adminDb.collection('contacts').where('status', '==', 'NEW').count().get(),
       adminDb.collection('bookings')
-        .where('created_at', '>=', firstOfMonth.toISOString())
-        .where('status', '!=', 'CANCELLED')
+        .where('created_at', '>=', firstOfMonth)
         .get()
     ]);
 
-    const totalRevenue = revenueSnap.docs.reduce((sum, doc) => sum + (doc.data().estimated_price || 0), 0);
+    const totalRevenue = revenueSnap.docs
+      .filter(doc => doc.data().status !== 'CANCELLED')
+      .reduce((sum, doc) => sum + (doc.data().estimated_price || 0), 0);
 
     // Status breakdown using the same revenue snapshot or a separate query if needed
     // Realistically we need ALL bookings for a true breakdown, or a cloud function to maintain aggregates

@@ -20,8 +20,9 @@ export default function AdminLogin() {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
+      const token = await user.getIdToken();
 
-      // Store minimal user info for UI (optional, Firebase keeps its own state)
+      localStorage.setItem('accessToken', token);
       localStorage.setItem('user', JSON.stringify({
         id: user.uid,
         email: user.email,
