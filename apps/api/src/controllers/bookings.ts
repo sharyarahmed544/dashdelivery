@@ -1,25 +1,8 @@
 import { Request, Response } from 'express';
 import { adminDb } from '../lib/firebase';
-import { z } from 'zod';
+import { BookingSchema, UpdateBookingStatusSchema } from '../lib/schemas';
 import logger from '../lib/logger';
-
-const BookingSchema = z.object({
-  pickup_address: z.string().min(5),
-  delivery_address: z.string().min(5),
-  service_type: z.enum(['STANDARD', 'EXPRESS', 'SAME_DAY']),
-  weight: z.number().positive(),
-  dimensions: z.string().optional(),
-  estimated_price: z.number().nonnegative(),
-  notes: z.string().optional(),
-  customer_name: z.string().min(2),
-  email: z.string().email(),
-});
-
-const UpdateStatusSchema = z.object({
-  status: z.string().min(1),
-  location: z.string().min(1),
-  description: z.string().optional(),
-});
+import { z } from 'zod';
 
 // Public: Create Booking
 export const createBooking = async (req: Request, res: Response) => {
@@ -33,8 +16,8 @@ export const createBooking = async (req: Request, res: Response) => {
       id: bookingRef.id,
       tracking_number,
       status: 'BOOKED',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
+      created_at: new Date(),
+      updated_at: new Date()
     };
 
     await bookingRef.set(bookingData);
@@ -81,7 +64,7 @@ export const updateBookingStatus = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   try {
-    const validatedData = UpdateStatusSchema.parse(req.body);
+    const validatedData = UpdateBookingStatusSchema.parse(req.body);
     const { status, location, description } = validatedData;
 
     const bookingRef = adminDb.collection('bookings').doc(id);

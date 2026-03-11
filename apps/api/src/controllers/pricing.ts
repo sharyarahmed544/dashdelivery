@@ -1,14 +1,8 @@
 import { Request, Response } from 'express';
 import { adminDb } from '../lib/firebase';
-import { z } from 'zod';
+import { PricingSchema } from '../lib/schemas';
 import logger from '../lib/logger';
-
-const PricingSchema = z.object({
-  from_country: z.string().min(2),
-  to_country: z.string().min(2),
-  service_type: z.string().min(1),
-  weight: z.number().positive(),
-});
+import { z } from 'zod';
 
 export const calculatePrice = async (req: Request, res: Response) => {
   try {

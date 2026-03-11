@@ -12,41 +12,47 @@ service cloud.firestore {
       return data.email is string && data.email.size() > 0 && data.email.size() < 255;
     }
 
-    // Public Collections (Read-only for public, Write for Admin)
+    // Helper to validate timestamps
+    function isValidTimestamp(ts) {
+      return ts != null && ts is timestamp && ts <= request.time + duration.value(24, 'h');
+    }
+
+    // Public Collections (Read-only for public with limits, Write for Admin)
     match /contentBlocks/{docId} {
-      allow read: if true;
+      allow read: if request.query.limit <= 100;
       allow write: if isAdmin();
     }
     
     match /siteSettings/{docId} {
-      allow read: if true;
+      allow read: if request.query.limit <= 100;
       allow write: if isAdmin();
     }
     
     match /services/{docId} {
-      allow read: if true;
+      allow read: if request.query.limit <= 100;
       allow write: if isAdmin();
     }
     
     match /testimonials/{docId} {
-      allow read: if true;
+      allow read: if request.query.limit <= 100;
       allow write: if isAdmin();
     }
     
     match /depotLocations/{docId} {
-      allow read: if true;
+      allow read: if request.query.limit <= 100;
       allow write: if isAdmin();
     }
 
     match /priceRules/{docId} {
-      allow read: if true;
+      allow read: if request.query.limit <= 100;
       allow write: if isAdmin();
     }
 
     // Submission Collections (Public Create with validation, Admin Read/Write)
     match /bookings/{bookingId} {
-      allow create: if request.resource.data.keys().hasAll(['email', 'customer_name']) 
-                    && validateInput(request.resource.data);
+      allow create: if request.resource.data.keys().hasAll(['email', 'customer_name', 'created_at']) 
+                    && validateInput(request.resource.data)
+                    && isValidTimestamp(request.resource.data.created_at);
       allow read, write: if isAdmin();
       
       // Tracking events subcollection
@@ -57,14 +63,16 @@ service cloud.firestore {
     }
     
     match /quotes/{quoteId} {
-      allow create: if request.resource.data.keys().hasAll(['email', 'service_type'])
-                    && validateInput(request.resource.data);
+      allow create: if request.resource.data.keys().hasAll(['email', 'service_type', 'created_at'])
+                    && validateInput(request.resource.data)
+                    && isValidTimestamp(request.resource.data.created_at);
       allow read, write: if isAdmin();
     }
     
     match /contacts/{contactId} {
-      allow create: if request.resource.data.keys().hasAll(['email', 'message'])
-                    && validateInput(request.resource.data);
+      allow create: if request.resource.data.keys().hasAll(['email', 'message', 'created_at'])
+                    && validateInput(request.resource.data)
+                    && isValidTimestamp(request.resource.data.created_at);
       allow read, write: if isAdmin();
     }
 

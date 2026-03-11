@@ -1,18 +1,8 @@
 import { Request, Response } from 'express';
 import { adminDb } from '../lib/firebase';
-import { z } from 'zod';
+import { PriceRuleSchema } from '../lib/schemas';
 import logger from '../lib/logger';
-
-const PriceRuleSchema = z.object({
-  id: z.string().optional(),
-  from_country: z.string().min(2),
-  to_country: z.string().min(2),
-  service_type: z.string().min(1),
-  base_price: z.union([z.number(), z.string()]).transform(v => Number(v)),
-  per_kg_price: z.union([z.number(), z.string()]).transform(v => Number(v)),
-  fuel_levy_pct: z.union([z.number(), z.string()]).transform(v => Number(v)),
-  is_active: z.boolean(),
-});
+import { z } from 'zod';
 
 export const getPriceRules = async (req: Request, res: Response) => {
   try {
@@ -38,8 +28,8 @@ export const upsertPriceRule = async (req: Request, res: Response) => {
       per_kg_price: Number(per_kg_price),
       fuel_levy_pct: Number(fuel_levy_pct),
       is_active,
-      updated_at: new Date().toISOString(),
-      created_at: id ? undefined : new Date().toISOString()
+      updated_at: new Date(),
+      created_at: id ? undefined : new Date()
     };
 
     // Remove undefined for created_at if updating

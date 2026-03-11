@@ -1,19 +1,8 @@
 import { Request, Response } from 'express';
 import { adminDb } from '../lib/firebase';
-import { z } from 'zod';
+import { ContentBlockSchema, SiteSettingSchema } from '../lib/schemas';
 import logger from '../lib/logger';
-
-const ContentBlockSchema = z.object({
-  title: z.string().min(1),
-  body: z.string().min(1),
-  cta_text: z.string().optional(),
-  cta_url: z.string().optional(),
-  is_active: z.boolean().optional(),
-});
-
-const SiteSettingSchema = z.object({
-  value: z.any(),
-});
+import { z } from 'zod';
 
 // Content Blocks
 export const getContentBlocks = async (req: Request, res: Response) => {
@@ -40,7 +29,7 @@ export const updateContentBlock = async (req: Request, res: Response) => {
       cta_text,
       cta_url,
       is_active,
-      updated_at: new Date().toISOString()
+      updated_at: new Date()
     });
 
     const updatedDoc = await blockRef.get();
@@ -75,7 +64,7 @@ export const updateSiteSetting = async (req: Request, res: Response) => {
     const settingRef = adminDb.collection('siteSettings').doc(key);
     await settingRef.update({
       value,
-      updated_at: new Date().toISOString()
+      updated_at: new Date()
     });
 
     const updatedDoc = await settingRef.get();

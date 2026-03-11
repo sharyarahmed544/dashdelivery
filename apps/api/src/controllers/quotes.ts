@@ -1,25 +1,8 @@
 import { Request, Response } from 'express';
 import { adminDb } from '../lib/firebase';
-import { z } from 'zod';
+import { QuoteSchema, UpdateQuoteSchema } from '../lib/schemas';
 import logger from '../lib/logger';
-
-const QuoteSchema = z.object({
-  company_name: z.string().optional(),
-  contact_name: z.string().min(2),
-  email: z.string().email(),
-  phone: z.string().min(10),
-  from_country: z.string().min(2),
-  to_country: z.string().min(2),
-  service_type: z.string().min(1),
-  weight: z.number().positive(),
-  cargo_description: z.string().min(5),
-  message: z.string().optional(),
-});
-
-const UpdateQuoteSchema = z.object({
-  status: z.string().min(1),
-  price_offered: z.number().nonnegative().optional(),
-});
+import { z } from 'zod';
 
 // Public: Submit Quote Request
 export const createQuoteRequest = async (req: Request, res: Response) => {
@@ -30,8 +13,8 @@ export const createQuoteRequest = async (req: Request, res: Response) => {
       ...validatedData,
       id: quoteRef.id,
       status: 'NEW',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
+      created_at: new Date(),
+      updated_at: new Date()
     };
 
     await quoteRef.set(quoteData);
