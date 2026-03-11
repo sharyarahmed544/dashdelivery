@@ -1,22 +1,22 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import { usePathname } from "next/navigation";
 
 export default function Cursor() {
+  const pathname = usePathname();
   const innerRef = useRef<HTMLDivElement>(null);
   const outerRef = useRef<HTMLDivElement>(null);
   const [isPointer, setIsPointer] = useState(false);
-  const [isTouch, setIsTouch] = useState(false);
   const [mounted, setMounted] = useState(false);
 
-  // Use refs for positions to avoid re-renders on every pixel moved
   const requestRef = useRef<number | undefined>(undefined);
   const mousePos = useRef({ x: -100, y: -100 });
   const lagPos = useRef({ x: -100, y: -100 });
 
   useEffect(() => {
     setMounted(true);
-    
+
     let isFirstMove = true;
 
     const onMouseMove = (e: MouseEvent) => {
@@ -29,13 +29,11 @@ export default function Cursor() {
         isFirstMove = false;
       }
 
-      // Update inner dot immediately via DOM for zero lag
       if (innerRef.current) {
         innerRef.current.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0) translate(-50%, -50%)`;
         innerRef.current.style.opacity = "1";
       }
 
-      // Check for pointer elements
       const target = e.target as HTMLElement;
       if (
         target.tagName.toLowerCase() === "a" ||
@@ -49,11 +47,10 @@ export default function Cursor() {
       }
     };
 
-    // Physics loop for lagging outer ring
     const loop = () => {
       const dx = mousePos.current.x - lagPos.current.x;
       const dy = mousePos.current.y - lagPos.current.y;
-      
+
       lagPos.current.x += dx * 0.15;
       lagPos.current.y += dy * 0.15;
 
@@ -74,6 +71,7 @@ export default function Cursor() {
     };
   }, []);
 
+  if (pathname?.startsWith('/admin')) return null;
   if (!mounted) return null;
 
   return (
@@ -85,9 +83,9 @@ export default function Cursor() {
           width: isPointer ? "12px" : "8px",
           height: isPointer ? "12px" : "8px",
           transition: "width 0.3s, height 0.3s",
-          opacity: 0, // Shown on first move
+          opacity: 0,
           zIndex: 2147483647,
-          backgroundColor: "#FF6B00", // Fallback to brand orange
+          backgroundColor: "#FF6B00",
           boxShadow: "0 0 10px rgba(255,107,0,0.5)"
         }}
         className="fixed top-0 left-0 pointer-events-none rounded-full"
@@ -102,7 +100,7 @@ export default function Cursor() {
           borderWidth: "1.5px",
           borderStyle: "solid",
           transition: "width 0.3s, height 0.3s, border-color 0.3s",
-          opacity: 0, // Shown on first move
+          opacity: 0,
           zIndex: 2147483646,
           backdropFilter: "blur(1px)"
         }}

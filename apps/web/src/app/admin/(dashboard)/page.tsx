@@ -28,35 +28,35 @@ export default function AdminDashboard() {
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white/5 border border-white/10 p-6 rounded-2xl">
-          <div className="text-gray-400 text-sm font-medium mb-2 uppercase tracking-wider">Today's Bookings</div>
-          <div className="text-4xl font-bold text-white">{stats.today_bookings}</div>
+        <div className="bg-[var(--surface)] border border-[var(--border)] p-6 rounded-2xl shadow-sm">
+          <div className="text-[var(--text3)] text-sm font-medium mb-2 uppercase tracking-wider">Today's Bookings</div>
+          <div className="text-4xl font-bold text-[var(--text)]">{stats.today_bookings}</div>
         </div>
-        <div className="bg-white/5 border border-white/10 p-6 rounded-2xl">
-          <div className="text-gray-400 text-sm font-medium mb-2 uppercase tracking-wider">Revenue Monthly</div>
-          <div className="text-4xl font-bold text-white">£{stats.monthly_revenue.toLocaleString()}</div>
+        <div className="bg-[var(--surface)] border border-[var(--border)] p-6 rounded-2xl shadow-sm">
+          <div className="text-[var(--text3)] text-sm font-medium mb-2 uppercase tracking-wider">Revenue Monthly</div>
+          <div className="text-4xl font-bold text-[var(--text)]">£{stats.monthly_revenue.toLocaleString()}</div>
         </div>
-        <div className="bg-white/5 border border-white/10 p-6 rounded-2xl">
-          <div className="text-gray-400 text-sm font-medium mb-2 uppercase tracking-wider">Pending Quotes</div>
-          <div className="text-4xl font-bold text-white">{stats.pending_quotes}</div>
+        <div className="bg-[var(--surface)] border border-[var(--border)] p-6 rounded-2xl shadow-sm">
+          <div className="text-[var(--text3)] text-sm font-medium mb-2 uppercase tracking-wider">Pending Quotes</div>
+          <div className="text-4xl font-bold text-[var(--text)]">{stats.pending_quotes}</div>
         </div>
-        <div className="bg-white/5 border border-white/10 p-6 rounded-2xl">
-          <div className="text-gray-400 text-sm font-medium mb-2 uppercase tracking-wider">New Enquiries</div>
-          <div className="text-4xl font-bold text-white">{stats.new_contacts || 0}</div>
+        <div className="bg-[var(--surface)] border border-[var(--border)] p-6 rounded-2xl shadow-sm">
+          <div className="text-[var(--text3)] text-sm font-medium mb-2 uppercase tracking-wider">New Enquiries</div>
+          <div className="text-4xl font-bold text-[var(--text)]">{stats.new_contacts || 0}</div>
         </div>
       </div>
 
-      <div className="bg-white/5 border border-white/10 p-6 rounded-2xl">
+      <div className="bg-[var(--surface)] border border-[var(--border)] p-8 rounded-2xl shadow-sm">
         <h2 className="text-xl font-bold mb-6">Status Breakdown</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {statusBreakdown.map((item: any, idx: number) => (
-            <div key={idx} className="bg-white/5 p-4 rounded-xl border border-white/5 flex justify-between items-center">
-              <span className="text-sm font-medium text-gray-400">{item.status.replace(/_/g, ' ')}</span>
-              <span className="text-lg font-bold text-[var(--og)]">{item._count.id}</span>
+            <div key={idx} className="bg-[var(--bg2)] p-4 rounded-xl border border-[var(--border)] flex justify-between items-center transition-all hover:border-[var(--o2)]">
+              <span className="text-sm font-medium text-[var(--text3)] uppercase tracking-tight">{item.status.replace(/_/g, ' ')}</span>
+              <span className="text-xl font-bold text-[var(--o1)]">{item._count.id}</span>
             </div>
           ))}
           {statusBreakdown.length === 0 && (
-            <div className="col-span-full py-4 text-center text-gray-500 italic">No active parcel data.</div>
+            <div className="col-span-full py-8 text-center text-[var(--text4)] italic">No active parcel data.</div>
           )}
         </div>
       </div>

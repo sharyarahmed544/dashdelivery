@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { Phone } from "lucide-react";
 
 export default function Nav() {
+  const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -15,20 +17,18 @@ export default function Nav() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  if (pathname?.startsWith('/admin')) return null;
+
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-[500] flex items-center justify-between px-16 py-5 transition-all duration-400 ${
-        scrolled
-          ? "bg-[var(--nav-bg)] backdrop-blur-md border-b border-[var(--border)] !py-[13px] shadow-[var(--shadow)]"
-          : ""
-      }`}
+      className={`main-nav ${scrolled ? 'scrolled' : ''}`}
     >
       <Link href="/" className="nav-logo">
         <span className="nd">DASH</span>
         <span className="ns">/</span>
         <span className="nd2">DELIVERY</span>
       </Link>
-      
+
       <div className="flex gap-[30px]">
         {[
           { name: "Services", id: "services" },
@@ -52,7 +52,7 @@ export default function Nav() {
           <span className="h-[6px] w-[6px] rounded-full bg-[#22c55e] shadow-[0_0_7px_#22c55e] animate-[blink_2s_infinite]"></span>
           0800 DASH 247
         </div>
-        <Link 
+        <Link
           href="/quote"
           className="font-[family-name:var(--font-syne)] text-[11px] font-bold tracking-[2px] uppercase text-white bg-[var(--og)] outline-none border-none py-[11px] px-6 rounded hover:-translate-y-[2px] hover:shadow-[0_8px_24px_rgba(255,69,0,0.35)] transition-all duration-200"
         >

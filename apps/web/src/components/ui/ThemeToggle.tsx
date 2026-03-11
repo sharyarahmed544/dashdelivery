@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { Moon, Sun } from "lucide-react";
 
 export default function ThemeToggle() {
+  const pathname = usePathname();
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const [mounted, setMounted] = useState(false);
 
@@ -27,6 +29,7 @@ export default function ThemeToggle() {
     document.documentElement.setAttribute("data-theme", newTheme);
   };
 
+  if (pathname?.startsWith('/admin')) return null;
   if (!mounted) return null;
 
   return (
