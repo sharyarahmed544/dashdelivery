@@ -28,7 +28,7 @@ export default function AdminLogin() {
         name: user.displayName || 'Admin'
       }));
 
-      router.push('/admin/dashboard');
+      router.push('/admin');
     } catch (err: any) {
       console.error('Login Error:', err);
       setError('Login failed. Please check your credentials.');

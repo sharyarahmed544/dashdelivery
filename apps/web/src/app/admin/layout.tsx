@@ -12,7 +12,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
     const userData = localStorage.getItem('user');
-    
+
     if (!token && pathname !== '/admin/login') {
       router.push('/admin/login');
     } else if (userData) {
@@ -23,7 +23,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (pathname === '/admin/login') return <>{children}</>;
 
   const menuItems = [
-    { label: 'Dashboard', icon: '📊', path: '/admin/dashboard' },
+    { label: 'Dashboard', icon: '📊', path: '/admin' },
     { label: 'Bookings', icon: '📦', path: '/admin/bookings' },
     { label: 'Quotes', icon: '📄', path: '/admin/quotes' },
     { label: 'Invoices', icon: '💰', path: '/admin/invoices' },
@@ -36,9 +36,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <div className="admin-layout" style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-alt)' }}>
       {/* Sidebar */}
-      <aside style={{ 
-        width: '260px', 
-        background: 'var(--bg)', 
+      <aside style={{
+        width: '260px',
+        background: 'var(--bg)',
         borderRight: '1px solid var(--border)',
         padding: '24px',
         display: 'flex',
@@ -50,14 +50,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         <nav style={{ flex: 1 }}>
           {menuItems.map(item => (
-            <Link 
-              key={item.path} 
+            <Link
+              key={item.path}
               href={item.path}
-              style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '12px', 
-                padding: '12px 16px', 
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                padding: '12px 16px',
                 borderRadius: '12px',
                 marginBottom: '4px',
                 textDecoration: 'none',
@@ -82,16 +82,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <div style={{ fontSize: '11px', opacity: 0.6 }}>{user.role}</div>
             </div>
           )}
-          <button 
+          <button
             onClick={() => {
               localStorage.removeItem('accessToken');
               localStorage.removeItem('user');
               router.push('/admin/login');
             }}
-            style={{ 
-              width: '100%', 
-              padding: '10px', 
-              background: 'rgba(255, 69, 0, 0.1)', 
+            style={{
+              width: '100%',
+              padding: '10px',
+              background: 'rgba(255, 69, 0, 0.1)',
               color: '#ff4500',
               border: 'none',
               borderRadius: '8px',

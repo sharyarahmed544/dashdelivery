@@ -4,6 +4,7 @@ import { getPriceRules, upsertPriceRule } from '../controllers/settings';
 import { getBookings, updateBookingStatus, createBooking } from '../controllers/bookings';
 import { getQuotes, updateQuote } from '../controllers/quotes';
 import { getDashboardStats } from '../controllers/dashboard';
+import { getUsers } from '../controllers/users';
 import { authenticateJWT, authorizeRole } from '../middleware/auth';
 
 const router = Router();
@@ -32,5 +33,8 @@ router.put('/bookings/:id/status', updateBookingStatus);
 // Quotes
 router.get('/quotes', getQuotes);
 router.put('/quotes/:id', updateQuote);
+
+// Users
+router.get('/users', getUsers);
 
 export default router;
