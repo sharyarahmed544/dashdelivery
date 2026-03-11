@@ -86,8 +86,11 @@ body {
   background: var(--bg);
   color: var(--text);
   overflow-x: hidden;
-  cursor: none;
   transition: background .4s, color .4s;
+}
+
+body.custom-cursor-enabled {
+  cursor: none;
 }
 
 /* ── NOISE TEXTURE ── */
@@ -143,7 +146,7 @@ body::before {
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: none;
+  cursor: inherit;
   font-size: 20px;
   transition: all .3s;
 }
@@ -273,7 +276,7 @@ body::before {
   border: none;
   padding: 11px 24px;
   border-radius: 4px;
-  cursor: none;
+  cursor: inherit;
   transition: transform .2s, box-shadow .2s;
 }
 
@@ -412,7 +415,7 @@ canvas#bgCanvas {
   border: none;
   padding: 16px 36px;
   border-radius: 4px;
-  cursor: none;
+  cursor: inherit;
   position: relative;
   overflow: hidden;
   transition: transform .2s, box-shadow .3s;
@@ -434,7 +437,7 @@ canvas#bgCanvas {
   border: 1.5px solid var(--border);
   padding: 15px 28px;
   border-radius: 4px;
-  cursor: none;
+  cursor: inherit;
   transition: all .3s;
   display: flex;
   align-items: center;
@@ -871,7 +874,7 @@ canvas#bgCanvas {
   position: relative;
   overflow: hidden;
   transition: border-color .4s, transform .3s, box-shadow .3s, background .3s;
-  cursor: none;
+  cursor: inherit;
   box-shadow: var(--shadow);
 }
 
@@ -1112,7 +1115,7 @@ canvas#bgCanvas {
   letter-spacing: 1.5px;
   text-transform: uppercase;
   color: #fff;
-  cursor: none;
+  cursor: inherit;
   transition: opacity .2s;
 }
 
@@ -1377,7 +1380,7 @@ canvas#bgCanvas {
   stroke: rgba(255, 107, 0, .18);
   stroke-width: 1.5;
   transition: fill .3s, stroke .3s;
-  cursor: none;
+  cursor: inherit;
 }
 
 .eu-map-wrap svg path:hover {
@@ -1467,7 +1470,7 @@ canvas#bgCanvas {
   color: var(--text);
   outline: none;
   transition: border-color .3s;
-  cursor: none;
+  cursor: inherit;
   appearance: none;
 }
 
@@ -1488,7 +1491,7 @@ canvas#bgCanvas {
   height: 4px;
   border-radius: 2px;
   outline: none;
-  cursor: none;
+  cursor: inherit;
 }
 
 .weight-slider::-webkit-slider-thumb {
@@ -1497,7 +1500,7 @@ canvas#bgCanvas {
   height: 18px;
   border-radius: 50%;
   background: var(--og);
-  cursor: none;
+  cursor: inherit;
   box-shadow: 0 0 10px rgba(255, 107, 0, .35);
 }
 
@@ -1591,7 +1594,7 @@ canvas#bgCanvas {
   border: none;
   padding: 16px;
   border-radius: 8px;
-  cursor: none;
+  cursor: inherit;
   transition: transform .2s, box-shadow .2s;
   position: relative;
 }
@@ -1692,7 +1695,7 @@ canvas#bgCanvas {
   position: relative;
   overflow: hidden;
   box-shadow: var(--shadow);
-  cursor: none;
+  cursor: inherit;
 }
 
 .tcard::after {
@@ -1799,7 +1802,7 @@ canvas#bgCanvas {
   letter-spacing: 3px;
   color: var(--text4);
   transition: color .3s;
-  cursor: none;
+  cursor: inherit;
 }
 
 .logo-item:hover {
@@ -1931,7 +1934,7 @@ canvas#bgCanvas {
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 11px 18px;
-  cursor: none;
+  cursor: inherit;
   transition: all .3s;
   box-shadow: var(--shadow);
 }
@@ -2049,7 +2052,7 @@ canvas#bgCanvas {
   border: none;
   padding: 16px 32px;
   border-radius: 6px;
-  cursor: none;
+  cursor: inherit;
   transition: transform .2s, box-shadow .2s;
   white-space: nowrap;
 }
@@ -2070,7 +2073,7 @@ canvas#bgCanvas {
   border: 1.5px solid rgba(255, 255, 255, .35);
   padding: 15px 28px;
   border-radius: 6px;
-  cursor: none;
+  cursor: inherit;
   transition: background .2s;
   white-space: nowrap;
 }

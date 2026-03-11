@@ -15,7 +15,15 @@ export default function Cursor() {
   const lagPos = useRef({ x: -100, y: -100 });
 
   useEffect(() => {
+    const isAdmin = pathname?.startsWith('/admin');
+
+    if (isAdmin) {
+      document.body.classList.remove('custom-cursor-enabled');
+      return;
+    }
+
     setMounted(true);
+    document.body.classList.add('custom-cursor-enabled');
 
     let isFirstMove = true;
 
@@ -68,11 +76,11 @@ export default function Cursor() {
     return () => {
       window.removeEventListener("mousemove", onMouseMove);
       if (requestRef.current) cancelAnimationFrame(requestRef.current);
+      document.body.classList.remove('custom-cursor-enabled');
     };
-  }, []);
+  }, [pathname]);
 
-  if (pathname?.startsWith('/admin')) return null;
-  if (!mounted) return null;
+  if (!mounted || pathname?.startsWith('/admin')) return null;
 
   return (
     <>

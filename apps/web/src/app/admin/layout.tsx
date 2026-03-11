@@ -10,7 +10,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
-    // 1. Auth & User Check
+    // 1. Auth Check
     const token = localStorage.getItem('accessToken');
     const userData = localStorage.getItem('user');
 
@@ -20,8 +20,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       setUser(JSON.parse(userData));
     }
 
-    // 2. Cursor Restore
+    // 2. Force Standard Cursor
     document.body.style.cursor = 'default';
+    document.body.classList.remove('custom-cursor-enabled');
+
     return () => {
       if (!window.location.pathname.startsWith('/admin')) {
         document.body.style.cursor = 'none';
@@ -43,39 +45,89 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   ];
 
   return (
-    <div className="admin-layout" style={{
-      display: 'flex',
+    <div id="admin-root" style={{
+      display: 'flex !important',
+      flexDirection: 'row !important',
       minHeight: '100vh',
       background: 'var(--bg)',
       color: 'var(--text)',
       position: 'relative',
-      zIndex: 1000
-    }}>
-      {/* Sidebar */}
-      <aside style={{
-        width: '260px',
-        flexShrink: 0,
-        background: 'var(--surface)',
-        borderRight: '1px solid var(--border)',
-        padding: '32px 24px',
-        display: 'flex',
-        flexDirection: 'column',
-        position: 'sticky',
-        top: 0,
-        height: '100vh'
-      }}>
-        <div className="logo" style={{
+      zIndex: 99999,
+      cursor: 'default !important'
+    } as any}>
+      {/* FORCE FIELD STYLE BLOCK */}
+      <style dangerouslySetInnerHTML={{
+        __html: `
+        #admin-root, #admin-root * {
+          cursor: default !important;
+          box-sizing: border-box;
+        }
+        #admin-root a, #admin-root button {
+          cursor: pointer !important;
+        }
+        #admin-root nav, #admin-root aside, #admin-root main, #admin-root header {
+          position: static !important;
+          float: none !important;
+          display: block !important;
+          width: auto;
+          height: auto;
+          margin: 0;
+          padding: 0;
+          background: transparent;
+          border: none;
+          box-shadow: none;
+          transform: none !important;
+          animation: none !important;
+        }
+        /* Scoped reset for the sidebar specifically */
+        #admin-sidebar-container {
+          all: unset !important;
+          display: flex !important;
+          flex-direction: column !important;
+          width: 260px !important;
+          min-width: 260px !important;
+          max-width: 260px !important;
+          height: 100vh !important;
+          background: var(--surface) !important;
+          border-right: 1px solid var(--border) !important;
+          padding: 32px 24px !important;
+          position: sticky !important;
+          top: 0 !important;
+          flex-shrink: 0 !important;
+          z-index: 100000 !important;
+        }
+        #admin-nav-list {
+          display: flex !important;
+          flex-direction: column !important;
+          gap: 6px !important;
+          margin-top: 40px !important;
+          flex: 1 !important;
+        }
+        #admin-main-content {
+          flex: 1 !important;
+          padding: 48px !important;
+          background: var(--bg2) !important;
+          min-height: 100vh !important;
+          position: relative !important;
+          display: block !important;
+          overflow-y: auto !important;
+        }
+      ` }} />
+
+      {/* Sidebar - Using div for absolute isolation */}
+      <div id="admin-sidebar-container">
+        <div id="admin-logo" style={{
           fontSize: '22px',
           fontFamily: 'var(--font-bebas)',
           letterSpacing: '2px',
           fontWeight: '900',
           color: '#ff4500',
-          marginBottom: '40px'
+          marginBottom: '0'
         }}>
           DASH <span style={{ color: 'var(--text)' }}>ADMIN</span>
         </div>
 
-        <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <div id="admin-nav-list">
           {menuItems.map(item => (
             <Link
               key={item.path}
@@ -91,14 +143,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 background: pathname === item.path ? '#ff4500' : 'transparent',
                 fontSize: '14px',
                 fontWeight: '600',
-                transition: 'all 0.2s'
+                transition: 'all 0.2s',
+                pointerEvents: 'auto'
               }}
             >
-              <span style={{ fontSize: '18px' }}>{item.icon}</span>
+              <span style={{ fontSize: '18px', display: 'inline-block' }}>{item.icon}</span>
               {item.label}
             </Link>
           ))}
-        </nav>
+        </div>
 
         <div style={{ marginTop: 'auto', borderTop: '1px solid var(--border)', paddingTop: '24px' }}>
           {user && (
@@ -129,18 +182,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             Sign Out
           </button>
         </div>
-      </aside>
+      </div>
 
       {/* Main Content */}
-      <main style={{
-        flex: 1,
-        padding: '48px',
-        background: 'var(--bg2)',
-        minHeight: '100vh',
-        position: 'relative'
-      }}>
+      <div id="admin-main-content">
         {children}
-      </main>
+      </div>
     </div>
   );
 }
