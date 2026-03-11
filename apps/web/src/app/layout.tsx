@@ -24,10 +24,10 @@ const dmSans = DM_Sans({
 import Cursor from "@/components/ui/Cursor";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import Nav from "@/components/ui/Nav";
+import ClientLayoutWrapper from "@/components/providers/ClientLayoutWrapper";
 
 export const metadata: Metadata = {
-  title: "Dash Delivery — UK & Europe's Fastest Courier",
-  description: "From London to Lisbon, Edinburgh to Athens — Dash moves your parcels faster, smarter and safer.",
+  // ...
 };
 
 export default function RootLayout({
@@ -40,10 +40,9 @@ export default function RootLayout({
       <body
         className={`${bebasNeue.variable} ${syne.variable} ${dmSans.variable} antialiased`}
       >
-        <ThemeToggle />
-        <Nav />
-        {children}
-        <Cursor />
+        <ClientLayoutWrapper>
+          {children}
+        </ClientLayoutWrapper>
       </body>
     </html>
   );

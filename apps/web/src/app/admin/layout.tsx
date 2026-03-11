@@ -10,6 +10,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
+    // 1. Auth & User Check
     const token = localStorage.getItem('accessToken');
     const userData = localStorage.getItem('user');
 
@@ -18,6 +19,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     } else if (userData) {
       setUser(JSON.parse(userData));
     }
+
+    // 2. Cursor Restore
+    document.body.style.cursor = 'default';
+    return () => {
+      if (!window.location.pathname.startsWith('/admin')) {
+        document.body.style.cursor = 'none';
+      }
+    };
   }, [pathname, router]);
 
   if (pathname === '/admin/login') return <>{children}</>;
@@ -34,21 +43,39 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   ];
 
   return (
-    <div className="admin-layout" style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg2)', color: 'var(--text)' }}>
+    <div className="admin-layout" style={{
+      display: 'flex',
+      minHeight: '100vh',
+      background: 'var(--bg)',
+      color: 'var(--text)',
+      position: 'relative',
+      zIndex: 1000
+    }}>
       {/* Sidebar */}
       <aside style={{
         width: '260px',
-        background: 'var(--bg)',
+        flexShrink: 0,
+        background: 'var(--surface)',
         borderRight: '1px solid var(--border)',
-        padding: '24px',
+        padding: '32px 24px',
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        position: 'sticky',
+        top: 0,
+        height: '100vh'
       }}>
-        <div className="logo" style={{ fontSize: '20px', fontWeight: '900', color: '#ff4500', marginBottom: '40px' }}>
+        <div className="logo" style={{
+          fontSize: '22px',
+          fontFamily: 'var(--font-bebas)',
+          letterSpacing: '2px',
+          fontWeight: '900',
+          color: '#ff4500',
+          marginBottom: '40px'
+        }}>
           DASH <span style={{ color: 'var(--text)' }}>ADMIN</span>
         </div>
 
-        <nav style={{ flex: 1 }}>
+        <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
           {menuItems.map(item => (
             <Link
               key={item.path}
@@ -59,17 +86,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 gap: '12px',
                 padding: '12px 16px',
                 borderRadius: '12px',
-                marginBottom: '4px',
                 textDecoration: 'none',
-                color: pathname === item.path ? 'white' : 'var(--text)',
+                color: pathname === item.path ? 'white' : 'var(--text2)',
                 background: pathname === item.path ? '#ff4500' : 'transparent',
                 fontSize: '14px',
                 fontWeight: '600',
-                opacity: pathname === item.path ? 1 : 0.7,
                 transition: 'all 0.2s'
               }}
             >
-              <span>{item.icon}</span>
+              <span style={{ fontSize: '18px' }}>{item.icon}</span>
               {item.label}
             </Link>
           ))}
@@ -77,9 +102,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         <div style={{ marginTop: 'auto', borderTop: '1px solid var(--border)', paddingTop: '24px' }}>
           {user && (
-            <div style={{ marginBottom: '16px' }}>
-              <div style={{ fontSize: '13px', fontWeight: '700' }}>{user.name}</div>
-              <div style={{ fontSize: '11px', opacity: 0.6 }}>{user.role}</div>
+            <div style={{ marginBottom: '16px', padding: '0 8px' }}>
+              <div style={{ fontSize: '14px', fontWeight: '700' }}>{user.name}</div>
+              <div style={{ fontSize: '11px', opacity: 0.5, textTransform: 'uppercase', letterSpacing: '1px' }}>{user.role}</div>
             </div>
           )}
           <button
@@ -90,14 +115,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             }}
             style={{
               width: '100%',
-              padding: '10px',
-              background: 'rgba(255, 69, 0, 0.1)',
+              padding: '12px',
+              background: 'rgba(255, 69, 0, 0.08)',
               color: '#ff4500',
               border: 'none',
-              borderRadius: '8px',
+              borderRadius: '10px',
               fontSize: '13px',
               fontWeight: '700',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              transition: 'background 0.2s'
             }}
           >
             Sign Out
@@ -106,7 +132,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </aside>
 
       {/* Main Content */}
-      <main style={{ flex: 1, padding: '40px', overflowY: 'auto' }}>
+      <main style={{
+        flex: 1,
+        padding: '48px',
+        background: 'var(--bg2)',
+        minHeight: '100vh',
+        position: 'relative'
+      }}>
         {children}
       </main>
     </div>
