@@ -3,6 +3,7 @@ import { adminDb } from '../lib/firebase';
 import { ContentBlockSchema, SiteSettingSchema } from '../lib/schemas';
 import logger from '../lib/logger';
 import { z } from 'zod';
+import { logAuditAction } from '../lib/audit';
 
 // Content Blocks
 export const getContentBlocks = async (req: Request, res: Response) => {

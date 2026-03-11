@@ -3,6 +3,7 @@ import { adminDb } from '../lib/firebase';
 import { BookingSchema, UpdateBookingStatusSchema } from '../lib/schemas';
 import logger from '../lib/logger';
 import { z } from 'zod';
+import { logAuditAction } from '../lib/audit';
 
 // Public: Create Booking
 export const createBooking = async (req: Request, res: Response) => {
@@ -77,6 +78,14 @@ export const updateBookingStatus = async (req: Request, res: Response) => {
     await bookingRef.update({
       status,
       updated_at: new Date().toISOString()
+    });
+
+    logAuditAction({
+      admin_id: (req as any).user?.uid || 'system',
+      admin_email: (req as any).user?.email || 'system',
+      action: 'UPDATE_BOOKING_STATUS',
+      resource_id: id,
+      details: { status, location }
     });
 
     await bookingRef.collection('tracking_events').add({

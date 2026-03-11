@@ -1,74 +1,56 @@
 'use client';
 
-import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import AdminSidebar from './components/AdminSidebar';
+import AdminHeader from './components/AdminHeader';
+import './admin.css';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [user, setUser] = useState<any>(null);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+
     // 1. Auth Check
     const token = localStorage.getItem('accessToken');
-    const userData = localStorage.getItem('user');
-
     if (!token && pathname !== '/admin/login') {
       router.push('/admin/login');
-    } else if (userData) {
-      setUser(JSON.parse(userData));
     }
 
-    // 2. Force Standard Cursor
-    document.body.style.cursor = 'default';
+    // 2. Clear custom cursor classes and set standard cursor
     document.body.classList.remove('custom-cursor-enabled');
+    document.body.style.cursor = 'default';
 
     return () => {
+      // Restore cursor only if leaving admin
       if (!window.location.pathname.startsWith('/admin')) {
         document.body.style.cursor = 'none';
       }
     };
   }, [pathname, router]);
 
+  if (!mounted) return <div className="min-h-screen bg-[#F8FAFC]" />;
   if (pathname === '/admin/login') return <>{children}</>;
 
-  const menuItems = [
-    { label: 'Dashboard', icon: '📊', path: '/admin' },
-    { label: 'Bookings', icon: '📦', path: '/admin/bookings' },
-    { label: 'Quotes', icon: '📄', path: '/admin/quotes' },
-    { label: 'Invoices', icon: '💰', path: '/admin/invoices' },
-    { label: 'Content CMS', icon: '📝', path: '/admin/cms' },
-    { label: 'Users & Roles', icon: '👥', path: '/admin/users' },
-    { label: 'Pricing Rules', icon: '🏷️', path: '/admin/settings' },
-    { label: 'Analytics', icon: '📈', path: '/admin/analytics' },
-  ];
-
   return (
-    <div id="admin-root" style={{
-      display: 'flex !important',
-      flexDirection: 'row !important',
-      minHeight: '100vh',
-      background: 'var(--bg)',
-      color: 'var(--text)',
-      position: 'relative',
-      zIndex: 99999,
-      cursor: 'default !important'
-    } as any}>
-      {/* FORCE FIELD STYLE BLOCK */}
+    <div id="admin-root" className="flex min-h-screen bg-[var(--admin-bg)] text-[var(--admin-text)] overflow-hidden">
+      {/* SCOPED CSS RESET - Force-field against global styles with Premium Light Theme support */}
       <style dangerouslySetInnerHTML={{
         __html: `
         #admin-root, #admin-root * {
-          cursor: default !important;
           box-sizing: border-box;
+          cursor: default !important;
         }
-        #admin-root a, #admin-root button {
+        #admin-root a, #admin-root button, #admin-root [role="button"] {
           cursor: pointer !important;
         }
+        /* Disable aggressive global nav/aside/main styles */
         #admin-root nav, #admin-root aside, #admin-root main, #admin-root header {
-          position: static !important;
-          float: none !important;
-          display: block !important;
+          position: static;
+          float: none;
           width: auto;
           height: auto;
           margin: 0;
@@ -78,115 +60,32 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           box-shadow: none;
           transform: none !important;
           animation: none !important;
+          backdrop-filter: none;
         }
-        /* Scoped reset for the sidebar specifically */
-        #admin-sidebar-container {
-          all: unset !important;
-          display: flex !important;
-          flex-direction: column !important;
-          width: 260px !important;
-          min-width: 260px !important;
-          max-width: 260px !important;
-          height: 100vh !important;
-          background: var(--surface) !important;
-          border-right: 1px solid var(--border) !important;
-          padding: 32px 24px !important;
-          position: sticky !important;
-          top: 0 !important;
-          flex-shrink: 0 !important;
-          z-index: 100000 !important;
+        /* Input & Form refinements for Light Mode */
+        #admin-root input, #admin-root select, #admin-root textarea {
+          background-color: #FFFFFF;
+          color: #1E293B;
+          border: 1px solid rgba(0,0,0,0.1);
         }
-        #admin-nav-list {
-          display: flex !important;
-          flex-direction: column !important;
-          gap: 6px !important;
-          margin-top: 40px !important;
-          flex: 1 !important;
+        #admin-root input:focus, #admin-root select:focus, #admin-root textarea:focus {
+          border-color: #FF4500 !important;
+          outline: none;
         }
-        #admin-main-content {
-          flex: 1 !important;
-          padding: 48px !important;
-          background: var(--bg2) !important;
-          min-height: 100vh !important;
-          position: relative !important;
-          display: block !important;
-          overflow-y: auto !important;
-        }
+        /* Re-enable flex for root */
+        #admin-root { display: flex !important; }
       ` }} />
 
-      {/* Sidebar - Using div for absolute isolation */}
-      <div id="admin-sidebar-container">
-        <div id="admin-logo" style={{
-          fontSize: '22px',
-          fontFamily: 'var(--font-bebas)',
-          letterSpacing: '2px',
-          fontWeight: '900',
-          color: '#ff4500',
-          marginBottom: '0'
-        }}>
-          DASH <span style={{ color: 'var(--text)' }}>ADMIN</span>
-        </div>
+      <AdminSidebar />
 
-        <div id="admin-nav-list">
-          {menuItems.map(item => (
-            <Link
-              key={item.path}
-              href={item.path}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                padding: '12px 16px',
-                borderRadius: '12px',
-                textDecoration: 'none',
-                color: pathname === item.path ? 'white' : 'var(--text2)',
-                background: pathname === item.path ? '#ff4500' : 'transparent',
-                fontSize: '14px',
-                fontWeight: '600',
-                transition: 'all 0.2s',
-                pointerEvents: 'auto'
-              }}
-            >
-              <span style={{ fontSize: '18px', display: 'inline-block' }}>{item.icon}</span>
-              {item.label}
-            </Link>
-          ))}
-        </div>
+      <div className="flex-1 flex flex-col h-screen overflow-hidden">
+        <AdminHeader />
 
-        <div style={{ marginTop: 'auto', borderTop: '1px solid var(--border)', paddingTop: '24px' }}>
-          {user && (
-            <div style={{ marginBottom: '16px', padding: '0 8px' }}>
-              <div style={{ fontSize: '14px', fontWeight: '700' }}>{user.name}</div>
-              <div style={{ fontSize: '11px', opacity: 0.5, textTransform: 'uppercase', letterSpacing: '1px' }}>{user.role}</div>
-            </div>
-          )}
-          <button
-            onClick={() => {
-              localStorage.removeItem('accessToken');
-              localStorage.removeItem('user');
-              router.push('/admin/login');
-            }}
-            style={{
-              width: '100%',
-              padding: '12px',
-              background: 'rgba(255, 69, 0, 0.08)',
-              color: '#ff4500',
-              border: 'none',
-              borderRadius: '10px',
-              fontSize: '13px',
-              fontWeight: '700',
-              cursor: 'pointer',
-              transition: 'background 0.2s'
-            }}
-          >
-            Sign Out
-          </button>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div id="admin-main-content">
-        {children}
+        <main id="admin-main-content" className="flex-1 overflow-y-auto p-8 admin-scrollbar bg-[var(--admin-bg)]">
+          <div className="max-w-[1600px] mx-auto animate-fade-in">
+            {children}
+          </div>
+        </main>
       </div>
     </div>
   );

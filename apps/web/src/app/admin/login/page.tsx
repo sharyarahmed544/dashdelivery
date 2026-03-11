@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase/config';
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import { Lock, Mail, ArrowRight, ShieldCheck } from 'lucide-react';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
@@ -32,103 +33,83 @@ export default function AdminLogin() {
       router.push('/admin');
     } catch (err: any) {
       console.error('Login Error:', err);
-      setError('Login failed. Please check your credentials.');
+      setError('Authentication failed. Access denied.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="admin-login-page" style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: 'var(--bg-alt)'
-    }}>
-      <div className="login-card reveal visible" style={{
-        width: '100%',
-        maxWidth: '400px',
-        padding: '40px',
-        background: 'var(--bg)',
-        borderRadius: '16px',
-        border: '1px solid var(--border)',
-        boxShadow: '0 20px 40px rgba(0,0,0,0.5)'
-      }}>
-        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <div className="logo" style={{ fontSize: '24px', fontWeight: '900', color: '#ff4500' }}>
-            DASH <span style={{ color: 'var(--text)' }}>DELIVERY</span>
+    <div className="min-h-screen flex items-center justify-center p-6 bg-[#F8FAFC]">
+      <div className="w-full max-w-md bg-white border border-black/[0.05] rounded-3xl p-10 shadow-2xl shadow-slate-200 animate-fade-in">
+        <div className="text-center mb-10">
+          <div className="flex justify-center mb-6">
+            <div className="w-16 h-16 bg-orange-50 rounded-2xl flex items-center justify-center text-[var(--admin-accent)] border border-orange-100 shadow-xl shadow-orange-500/10">
+              <ShieldCheck size={32} />
+            </div>
           </div>
-          <div style={{ fontSize: '14px', opacity: 0.6, marginTop: '8px' }}>Admin Control Center</div>
+          <h1 className="font-bebas text-4xl tracking-widest text-slate-900 leading-none">
+            DASH <span className="text-[var(--admin-accent)]">ADMIN</span>
+          </h1>
+          <p className="text-[10px] font-black uppercase tracking-[3px] text-slate-400 mt-3">Enterprise Access Point</p>
         </div>
 
         {error && (
-          <div style={{
-            background: 'rgba(255, 69, 0, 0.1)',
-            color: '#ff4500',
-            padding: '12px',
-            borderRadius: '8px',
-            fontSize: '13px',
-            marginBottom: '20px',
-            border: '1px solid rgba(255, 69, 0, 0.2)'
-          }}>
+          <div className="bg-red-50 border border-red-100 text-red-600 px-5 py-4 rounded-2xl text-[11px] font-bold uppercase tracking-widest mb-8 animate-shake">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleLogin}>
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', fontSize: '13px', marginBottom: '8px', opacity: 0.8 }}>Email Address</label>
-            <input
-              type="email"
-              required
-              style={{
-                width: '100%',
-                padding: '12px',
-                background: 'var(--bg-alt)',
-                border: '1px solid var(--border)',
-                borderRadius: '8px',
-                color: 'var(--text)'
-              }}
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
+        <form onSubmit={handleLogin} className="space-y-6">
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Universal ID</label>
+            <div className="relative">
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="admin@dashdelivery.com"
+                className="w-full bg-[#F8FAFC] border border-slate-200 py-4 pl-12 pr-5 rounded-2xl text-sm font-bold text-slate-900 outline-none focus:border-[var(--admin-accent)] focus:bg-white transition-all shadow-inner placeholder:text-slate-300"
+              />
+            </div>
           </div>
-          <div style={{ marginBottom: '32px' }}>
-            <label style={{ display: 'block', fontSize: '13px', marginBottom: '8px', opacity: 0.8 }}>Password</label>
-            <input
-              type="password"
-              required
-              style={{
-                width: '100%',
-                padding: '12px',
-                background: 'var(--bg-alt)',
-                border: '1px solid var(--border)',
-                borderRadius: '8px',
-                color: 'var(--text)'
-              }}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Access Protocol</label>
+            <div className="relative">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <input
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full bg-[#F8FAFC] border border-slate-200 py-4 pl-12 pr-5 rounded-2xl text-sm font-bold text-slate-900 outline-none focus:border-[var(--admin-accent)] focus:bg-white transition-all shadow-inner placeholder:text-slate-300"
+              />
+            </div>
           </div>
+
           <button
             type="submit"
             disabled={loading}
-            style={{
-              width: '100%',
-              padding: '14px',
-              background: '#ff4500',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              fontWeight: '700',
-              cursor: 'pointer',
-              opacity: loading ? 0.7 : 1
-            }}
+            className="w-full bg-[var(--admin-accent-gradient)] text-white py-5 rounded-2xl font-black text-xs uppercase tracking-[4px] shadow-2xl shadow-orange-500/30 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 mt-4 group"
           >
-            {loading ? 'Authenticating...' : 'Sign In →'}
+            {loading ? 'Decrypting...' : (
+              <span className="flex items-center justify-center gap-2">
+                Sign In
+                <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+              </span>
+            )}
           </button>
         </form>
+
+        <div className="mt-10 text-center">
+          <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">
+            Authorized Personnel Only
+          </p>
+        </div>
       </div>
     </div>
   );
