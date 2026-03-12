@@ -69,7 +69,14 @@ const authLimiter = rateLimit({
 
 const defaultLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: 300,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const adminLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 2000,         // admin panel makes many simultaneous SWR calls
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -78,10 +85,10 @@ import publicRoutes from './routes/public';
 import authRoutes from './routes/adminAuth';
 import adminRoutes from './routes/admin';
 
-// API Routes
+// API Routes — admin must be registered before the catch-all public prefix
 app.use('/api/v1/admin/auth', authLimiter, authRoutes);
+app.use('/api/v1/admin', adminLimiter, adminRoutes);
 app.use('/api/v1', defaultLimiter, publicRoutes);
-app.use('/api/v1/admin', defaultLimiter, adminRoutes);
 
 // Public Health Check
 app.get('/api/v1/health', (req, res) => {
